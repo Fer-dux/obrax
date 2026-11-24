@@ -21,6 +21,7 @@ Next.js 15 · React 19 · Tailwind · Supabase (Postgres + Auth + RLS) · Vercel
 2. En Supabase → **SQL Editor**, ejecutar en orden:
    - `supabase/migrations/0001_esquema_inicial.sql`
    - `supabase/migrations/0002_datos_iniciales.sql` (lista de materiales + precios de hormigón **de ejemplo**)
+   - `supabase/migrations/0003_permisos_funciones.sql`
 3. Variables de entorno (ver `.env.example`): `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 4. Desarrollo local: `npm install && npm run dev`.
 
