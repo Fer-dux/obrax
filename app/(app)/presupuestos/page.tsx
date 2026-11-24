@@ -2,6 +2,7 @@ import Link from "next/link";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { totales, pesos, numeroPresupuesto, fechaAR } from "@/lib/calculos";
 import { EstadoBadge } from "@/components/EstadoBadge";
+import { BotonEliminarPresupuesto, BotonLimpiarBorradores } from "@/components/AccionesPresupuesto";
 import type { EstadoPresupuesto, Item, Presupuesto } from "@/lib/tipos";
 
 type Fila = Presupuesto & { presupuesto_items: Item[]; clientes: { nombre: string } | null; obras: { nombre: string } | null; perfiles: { nombre: string } | null };
@@ -18,11 +19,13 @@ export default async function Presupuestos({ searchParams }: { searchParams: Pro
   if (estado !== "todos") consulta = consulta.eq("estado", estado);
   const { data } = await consulta;
   const lista = (data ?? []) as Fila[];
+  const vacios = lista.filter((p) => p.estado === "borrador" && !p.cliente_id && p.presupuesto_items.length === 0).map((p) => p.id);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="titulo flex-1">Presupuestos</h1>
+        <BotonLimpiarBorradores ids={vacios} />
         <Link href="/presupuestos/nuevo" prefetch={false} className="btn-primario">+ Presupuesto</Link>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -39,7 +42,7 @@ export default async function Presupuestos({ searchParams }: { searchParams: Pro
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-stone-50 text-left text-xs uppercase text-stone-500">
-              <tr><th className="px-4 py-2">Número</th><th>Cliente / Obra</th><th>Fecha</th><th>Unidades</th><th>Vendedor</th><th>Estado</th><th className="pr-4 text-right">Total</th></tr>
+              <tr><th className="px-4 py-2">Número</th><th>Cliente / Obra</th><th>Fecha</th><th>Unidades</th><th>Vendedor</th><th>Estado</th><th className="text-right">Total</th><th className="w-12" /></tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {lista.map((p) => {
@@ -56,7 +59,8 @@ export default async function Presupuestos({ searchParams }: { searchParams: Pro
                     </td>
                     <td className="text-stone-600">{p.perfiles?.nombre}</td>
                     <td><EstadoBadge estado={p.estado} /></td>
-                    <td className="pr-4 text-right font-semibold">{pesos(t.total)}</td>
+                    <td className="text-right font-semibold">{pesos(t.total)}</td>
+                    <td className="pr-2 text-right"><BotonEliminarPresupuesto id={p.id} numero={numeroPresupuesto(p.numero)} /></td>
                   </tr>
                 );
               })}

@@ -8,7 +8,12 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
   const supabase = await crearClienteServidor();
   const { data } = await supabase.auth.getUser();
   if (!data.user) redirect("/login");
-  const { data: perfil } = await supabase.from("perfiles").select("nombre, rol").eq("id", data.user.id).single();
+  const { data: perfil } = await supabase.from("perfiles").select("nombre, rol, activo").eq("id", data.user.id).single();
+
+  if (perfil && !perfil.activo) {
+    await supabase.auth.signOut();
+    redirect("/login?inactivo=1");
+  }
 
   return (
     <div className="min-h-screen pb-20 sm:pb-0">

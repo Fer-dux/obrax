@@ -15,6 +15,7 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
   const ruta = usePathname();
   const router = useRouter();
   const activo = (h: string) => (h === "/" ? ruta === "/" : ruta.startsWith(h));
+  const enlaces = esAdmin ? [...ENLACES, { href: "/usuarios", texto: "Usuarios", icono: "👥" }] : ENLACES;
 
   async function salir() {
     await crearClienteNavegador().auth.signOut();
@@ -28,7 +29,7 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
           <Link href="/"><Logo className="h-7" claro /></Link>
           <nav className="hidden gap-1 sm:flex">
-            {ENLACES.map((e) => (
+            {enlaces.map((e) => (
               <Link
                 key={e.href}
                 href={e.href}
@@ -47,8 +48,8 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
           </div>
         </div>
       </header>
-      <nav className="no-imprimir fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-stone-200 bg-white sm:hidden">
-        {ENLACES.map((e) => (
+      <nav className={`no-imprimir fixed inset-x-0 bottom-0 z-20 grid border-t border-stone-200 bg-white sm:hidden ${esAdmin ? "grid-cols-5" : "grid-cols-4"}`}>
+        {enlaces.map((e) => (
           <Link key={e.href} href={e.href} className={`flex flex-col items-center py-2 text-xs ${activo(e.href) ? "text-naranja" : "text-stone-500"}`}>
             <span className="text-lg leading-none">{e.icono}</span>
             {e.texto}

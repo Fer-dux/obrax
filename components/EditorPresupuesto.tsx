@@ -134,6 +134,7 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
           WhatsApp
         </button>
         <button className="btn-primario" onClick={() => guardar()}>Guardar</button>
+        <button className="btn-secundario text-red-600 hover:bg-red-50" onClick={eliminar} title="Eliminar presupuesto">🗑</button>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">

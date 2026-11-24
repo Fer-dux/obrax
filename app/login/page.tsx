@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteNavegador } from "@/lib/supabase/client";
 import { Logo } from "@/components/Logo";
@@ -15,6 +15,12 @@ export default function Login() {
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
   const [cargando, setCargando] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("inactivo")) {
+      setError("Tu usuario está desactivado. Consultá con el administrador.");
+    }
+  }, []);
 
   function cambiarModo(m: Modo) {
     setModo(m);
@@ -42,7 +48,7 @@ export default function Login() {
         password: clave,
         options: { data: { nombre }, emailRedirectTo: `${location.origin}/` },
       });
-      if (error) setError(error.message);
+      if (error) setError(/database|cerrado/i.test(error.message) ? "El registro está cerrado. Pedile al administrador que te dé de alta." : error.message);
       else if (!data.session) setAviso("Te enviamos un email para confirmar la cuenta.");
       else {
         router.replace("/");
@@ -119,9 +125,7 @@ export default function Login() {
         </button>
 
         {modo === "ingresar" ? (
-          <button type="button" className="w-full text-sm text-stone-500 hover:text-grafito" onClick={() => cambiarModo("registrar")}>
-            ¿Sos nuevo en el equipo? Crear cuenta
-          </button>
+          <p className="text-center text-xs text-stone-500">¿No tenés usuario? Pedíselo al administrador de OBRAX.</p>
         ) : (
           <button type="button" className="w-full text-sm text-stone-500 hover:text-grafito" onClick={() => cambiarModo("ingresar")}>
             ← Volver a ingresar

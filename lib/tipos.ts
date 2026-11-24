@@ -2,11 +2,15 @@ export type UnidadNegocio = "hormigon" | "materiales";
 export type CondicionFiscal = "consumidor_final" | "responsable_inscripto" | "monotributo" | "exento";
 export type EstadoPresupuesto = "borrador" | "enviado" | "aceptado" | "perdido";
 
+export type Rol = "admin" | "vendedor" | "logistica" | "administracion";
+
 export type Perfil = {
   id: string;
   nombre: string;
+  email: string;
   telefono: string;
-  rol: "admin" | "vendedor";
+  activo: boolean;
+  rol: Rol;
   unidades: UnidadNegocio[];
   comision_hormigon: number;
   comision_materiales: number;
@@ -84,6 +88,23 @@ export const NOMBRE_UNIDAD: Record<UnidadNegocio, string> = {
   hormigon: "Hormigón",
   materiales: "Materiales",
 };
+
+export const NOMBRE_ROL: Record<Rol, string> = {
+  admin: "Administrador",
+  vendedor: "Vendedor",
+  logistica: "Logística",
+  administracion: "Administración",
+};
+
+/** Roles del PDF que todavía no tienen módulo propio. */
+export const ROLES_PROXIMAMENTE: Rol[] = ["logistica", "administracion"];
+
+/** Nombre del perfil comercial según rol + unidades (ej. "Vendedor hormigón"). */
+export function descripcionPerfil(p: Pick<Perfil, "rol" | "unidades">) {
+  if (p.rol !== "vendedor") return NOMBRE_ROL[p.rol];
+  if (p.unidades.length === 1) return `Vendedor ${p.unidades[0] === "hormigon" ? "hormigón" : "materiales"}`;
+  return "Vendedor hormigón y materiales";
+}
 
 export const NOMBRE_CONDICION: Record<CondicionFiscal, string> = {
   consumidor_final: "Consumidor final",
