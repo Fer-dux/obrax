@@ -6,7 +6,7 @@ import { crearClienteNavegador } from "@/lib/supabase/client";
 
 const ENLACES = [
   { href: "/", texto: "Panel", icono: "▦" },
-  { href: "/presupuestos", texto: "Presupuestos", icono: "₱" },
+  { href: "/presupuestos", texto: "Presupuestos", corto: "Presup.", icono: "₱" },
   { href: "/clientes", texto: "Clientes", icono: "☺" },
   { href: "/precios", texto: "Precios", icono: "$" },
 ];
@@ -50,9 +50,9 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
       </header>
       <nav className={`no-imprimir fixed inset-x-0 bottom-0 z-20 grid border-t border-stone-200 bg-white sm:hidden ${esAdmin ? "grid-cols-5" : "grid-cols-4"}`}>
         {enlaces.map((e) => (
-          <Link key={e.href} href={e.href} className={`flex flex-col items-center py-2 text-xs ${activo(e.href) ? "text-naranja" : "text-stone-500"}`}>
+          <Link key={e.href} href={e.href} className={`flex min-w-0 flex-col items-center py-2 text-[11px] ${activo(e.href) ? "text-naranja" : "text-stone-500"}`}>
             <span className="text-lg leading-none">{e.icono}</span>
-            {e.texto}
+            <span className="max-w-full truncate px-0.5">{"corto" in e && e.corto ? e.corto : e.texto}</span>
           </Link>
         ))}
       </nav>

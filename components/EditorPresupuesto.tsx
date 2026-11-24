@@ -220,7 +220,8 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
               <Fila l="IVA" v={pesos(t.iva)} />
             </>)}
             <div className="border-t border-stone-200 pt-2">
-              <Fila l="TOTAL (IVA incluido)" v={pesos(t.total)} grande />
+              <Fila l="TOTAL" v={pesos(t.total)} grande />
+              <p className="text-right text-xs text-stone-500">IVA incluido</p>
             </div>
           </div>
 
@@ -243,7 +244,7 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label">Fecha</label>
-                <input className="input" type="date" value={p.fecha} onChange={(e) => cambiar("fecha", e.target.value)} />
+                <input className="input appearance-none" type="date" value={p.fecha} onChange={(e) => cambiar("fecha", e.target.value)} />
               </div>
               <div>
                 <label className="label">Vigencia (días)</label>
@@ -340,14 +341,14 @@ function Seccion({ unidad, items, productos, onCambiar, onAgregar, onLibre, extr
           </div>
           {propios.map((i) => (
             <div key={i.id} className="grid grid-cols-12 items-center gap-2 border-b border-stone-100 pb-2 sm:border-0 sm:pb-0">
-              <input className="input col-span-12 sm:col-span-5" value={i.descripcion} onChange={(e) => upd(i.id, "descripcion", e.target.value)} placeholder="Descripción" />
-              <div className="col-span-4 flex items-center gap-1 sm:col-span-2">
-                <input className="input text-right" type="number" step="0.5" min={0} value={i.cantidad} onChange={(e) => upd(i.id, "cantidad", Number(e.target.value))} />
-                <span className="w-10 shrink-0 text-xs text-stone-500">{i.unidad}</span>
+              <input className="input order-1 col-span-11 sm:col-span-5" value={i.descripcion} onChange={(e) => upd(i.id, "descripcion", e.target.value)} placeholder="Descripción" />
+              <button className="order-2 col-span-1 text-stone-400 hover:text-red-600 sm:order-5" onClick={() => quitar(i.id)} title="Quitar">✕</button>
+              <div className="order-3 col-span-4 flex min-w-0 items-center gap-1 sm:order-2 sm:col-span-2">
+                <input className="input px-2 text-right" type="number" inputMode="decimal" step="0.5" min={0} value={i.cantidad} onChange={(e) => upd(i.id, "cantidad", Number(e.target.value))} />
+                <span className="w-9 shrink-0 truncate text-xs text-stone-500">{i.unidad}</span>
               </div>
-              <input className="input col-span-4 text-right sm:col-span-2" type="number" step="0.01" value={i.precio} onChange={(e) => upd(i.id, "precio", Number(e.target.value))} />
-              <div className="col-span-3 text-right text-sm font-semibold sm:col-span-2">{pesos(importe(i))}</div>
-              <button className="col-span-1 text-stone-400 hover:text-red-600" onClick={() => quitar(i.id)} title="Quitar">✕</button>
+              <input className="input order-4 col-span-4 px-2 text-right sm:order-3 sm:col-span-2" type="number" inputMode="decimal" step="0.01" value={i.precio} onChange={(e) => upd(i.id, "precio", Number(e.target.value))} />
+              <div className="order-5 col-span-4 truncate text-right text-sm font-semibold sm:order-4 sm:col-span-2">{pesos(importe(i))}</div>
             </div>
           ))}
         </div>
