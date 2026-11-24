@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const RUTAS_PUBLICAS = ["/login", "/p/", "/configuracion-pendiente"];
+const RUTAS_PUBLICAS = ["/login", "/restablecer", "/p/", "/configuracion-pendiente"];
 
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
