@@ -1,0 +1,139 @@
+import { notFound } from "next/navigation";
+import { crearClienteServidor } from "@/lib/supabase/server";
+import { Logo } from "@/components/Logo";
+import { BotonImprimir } from "@/components/BotonImprimir";
+import { discriminaIva, fechaAR, importe, numeroPresupuesto, pesos, totales, venceEl } from "@/lib/calculos";
+import { NOMBRE_CONDICION, NOMBRE_UNIDAD, type CondicionFiscal, type Item, type Presupuesto, type UnidadNegocio } from "@/lib/tipos";
+
+export const dynamic = "force-dynamic";
+
+type Datos = {
+  presupuesto: Presupuesto;
+  cliente: { nombre: string; cuit: string; condicion_fiscal: CondicionFiscal; telefono: string } | null;
+  obra: { nombre: string; direccion: string; localidad: string } | null;
+  vendedor: { nombre: string; telefono: string } | null;
+  items: Item[];
+};
+
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  void token;
+  return { title: "Presupuesto OBRAX", robots: { index: false } };
+}
+
+export default async function PresupuestoPublico({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  if (!/^[0-9a-f-]{36}$/i.test(token)) notFound();
+  const supabase = await crearClienteServidor();
+  const { data } = await supabase.rpc("presupuesto_publico", { p_token: token });
+  if (!data) notFound();
+  const { presupuesto: p, cliente, obra, vendedor, items } = data as Datos;
+  const t = totales(items, p.descuento);
+  const conIva = discriminaIva(cliente?.condicion_fiscal);
+  const unidades = (["hormigon", "materiales"] as UnidadNegocio[]).filter((u) => items.some((i) => i.unidad_negocio === u));
+
+  return (
+    <div className="min-h-screen bg-stone-200 py-6 print:bg-white print:py-0">
+      <div className="no-imprimir mx-auto mb-4 flex max-w-[210mm] justify-end gap-2 px-4">
+        <BotonImprimir />
+      </div>
+
+      <article className="mx-auto max-w-[210mm] bg-white shadow-lg print:shadow-none">
+        <header className="relative overflow-hidden bg-white px-8 pb-5 pt-8">
+          <div className="absolute right-0 top-0 h-full w-40 -skew-x-12 translate-x-16 bg-grafito" />
+          <div className="absolute right-24 top-0 h-full w-6 -skew-x-12 bg-naranja" />
+          <div className="relative">
+            <Logo className="h-12" />
+            <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-stone-500">Soluciones para la construcción</p>
+          </div>
+        </header>
+        <div className="flex items-center justify-between bg-grafito px-8 py-2 text-xs uppercase tracking-[0.25em] text-white">
+          <span>Hormigón elaborado · Materiales</span>
+          <span className="font-bold text-naranja">Presupuesto {numeroPresupuesto(p.numero)}</span>
+        </div>
+
+        <section className="grid grid-cols-2 gap-6 px-8 py-6 text-sm">
+          <div>
+            <div className="label">Cliente</div>
+            <div className="font-semibold">{cliente?.nombre ?? "—"}</div>
+            {cliente?.cuit && <div>CUIT/DNI: {cliente.cuit}</div>}
+            {cliente && <div>{NOMBRE_CONDICION[cliente.condicion_fiscal]}</div>}
+            {obra && (<>
+              <div className="label mt-3">Obra</div>
+              <div className="font-semibold">{obra.nombre}</div>
+              <div>{[obra.direccion, obra.localidad].filter(Boolean).join(", ")}</div>
+            </>)}
+          </div>
+          <div className="text-right">
+            <div className="label">Fecha</div>
+            <div>{fechaAR(p.fecha)}</div>
+            <div className="label mt-3">Válido hasta</div>
+            <div className="font-semibold">{fechaAR(venceEl(p.fecha, p.vigencia_dias))}</div>
+            {p.es_acopio && <div className="mt-3 inline-block rounded bg-naranja-claro px-2 py-1 text-xs font-bold text-naranja-oscuro">ACOPIO</div>}
+          </div>
+        </section>
+
+        {unidades.map((u) => {
+          const propios = items.filter((i) => i.unidad_negocio === u);
+          return (
+            <section key={u} className="px-8 pb-4">
+              <h2 className={`mb-1 border-b-2 pb-1 text-sm font-bold uppercase tracking-wider ${u === "hormigon" ? "border-grafito" : "border-naranja"}`}>
+                {NOMBRE_UNIDAD[u]}
+              </h2>
+              <table className="w-full text-sm">
+                <thead className="text-left text-[11px] uppercase text-stone-500">
+                  <tr><th className="py-1">Descripción</th><th className="text-right">Cant.</th><th className="pl-2">Un.</th><th className="text-right">Precio unit.</th><th className="text-right">Importe</th></tr>
+                </thead>
+                <tbody>
+                  {propios.map((i) => (
+                    <tr key={i.id} className="border-b border-stone-100">
+                      <td className="py-1.5">{i.descripcion}</td>
+                      <td className="text-right">{Number(i.cantidad).toLocaleString("es-AR")}</td>
+                      <td className="pl-2 text-stone-500">{i.unidad}</td>
+                      <td className="text-right">{pesos(i.precio)}</td>
+                      <td className="text-right font-medium">{pesos(importe(i))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          );
+        })}
+
+        <section className="flex justify-end px-8 py-4">
+          <div className="w-72 space-y-1 text-sm">
+            {t.descuento > 0 && (<>
+              <Linea l="Subtotal" v={pesos(t.bruto)} />
+              <Linea l={`Descuento ${p.descuento}%`} v={`− ${pesos(t.descuento)}`} />
+            </>)}
+            {conIva && (<>
+              <Linea l="Neto gravado" v={pesos(t.neto)} />
+              <Linea l="IVA" v={pesos(t.iva)} />
+            </>)}
+            <div className="mt-2 flex justify-between bg-grafito px-3 py-2 text-base font-bold text-white">
+              <span>TOTAL</span><span>{pesos(t.total)}</span>
+            </div>
+            <p className="text-right text-[11px] text-stone-500">Precios en pesos argentinos, IVA incluido.</p>
+          </div>
+        </section>
+
+        <section className="space-y-1 px-8 pb-6 text-xs text-stone-600">
+          {p.notas && <p className="whitespace-pre-line">{p.notas}</p>}
+          {p.es_acopio && (
+            <p>Acopio: precios congelados por el plazo acordado; vencido el mismo se actualizan por índice CAC. El hierro no se acopia y se cobra a precio de lista vigente.</p>
+          )}
+          <p>Pedidos con 48/72 horas de anticipación. Precios sujetos a disponibilidad de stock.</p>
+        </section>
+
+        <footer className="flex items-center justify-between border-t-4 border-naranja bg-grafito px-8 py-3 text-xs text-stone-300">
+          <span>{vendedor?.nombre ? `Atendido por ${vendedor.nombre}${vendedor.telefono ? " · " + vendedor.telefono : ""}` : "OBRAX"}</span>
+          <span className="tracking-[0.25em]">SOLIDEZ | CONFIANZA | RESPALDO</span>
+        </footer>
+      </article>
+    </div>
+  );
+}
+
+function Linea({ l, v }: { l: string; v: string }) {
+  return <div className="flex justify-between"><span className="text-stone-500">{l}</span><span>{v}</span></div>;
+}
