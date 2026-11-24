@@ -25,7 +25,7 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
 
   return (
     <>
-      <header className="no-imprimir sticky top-0 z-20 bg-grafito text-white shadow">
+      <header className="no-imprimir sticky top-0 z-20 bg-grafito pt-[env(safe-area-inset-top)] text-white shadow">
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
           <Link href="/"><Logo className="h-7" claro /></Link>
           <nav className="hidden gap-1 sm:flex">
@@ -48,7 +48,7 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
           </div>
         </div>
       </header>
-      <nav className={`no-imprimir fixed inset-x-0 bottom-0 z-20 grid border-t border-stone-200 bg-white sm:hidden ${esAdmin ? "grid-cols-5" : "grid-cols-4"}`}>
+      <nav className={`no-imprimir fixed inset-x-0 bottom-0 z-20 grid border-t border-stone-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden ${esAdmin ? "grid-cols-5" : "grid-cols-4"}`}>
         {enlaces.map((e) => (
           <Link key={e.href} href={e.href} className={`flex min-w-0 flex-col items-center py-2 text-[11px] ${activo(e.href) ? "text-naranja" : "text-stone-500"}`}>
             <span className="text-lg leading-none">{e.icono}</span>

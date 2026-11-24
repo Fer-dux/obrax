@@ -63,7 +63,7 @@ export default function Restablecer() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-grafito p-4">
+    <div className="flex min-h-screen items-center justify-center bg-grafito p-4 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
         <Logo className="mx-auto h-10" />
 

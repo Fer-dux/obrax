@@ -16,7 +16,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen pb-20 sm:pb-0">
+    <div className="min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
       <Navegacion nombre={perfil?.nombre ?? data.user.email ?? ""} esAdmin={perfil?.rol === "admin"} />
       <main className="mx-auto max-w-6xl px-4 py-5">{children}</main>
     </div>

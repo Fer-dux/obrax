@@ -71,7 +71,7 @@ export default function Login() {
   const textoBoton = { ingresar: "Ingresar", registrar: "Crear cuenta", recuperar: "Enviar link" }[modo];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-grafito p-4">
+    <div className="flex min-h-screen items-center justify-center bg-grafito p-4 pt-[max(1rem,env(safe-area-inset-top))]">
       <form onSubmit={enviar} className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
         <div className="text-center">
           <Logo className="mx-auto h-10" />
