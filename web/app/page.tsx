@@ -52,19 +52,35 @@ export default function Inicio() {
             <div className="absolute -right-10 top-0 h-full w-24 -skew-x-12 bg-grafito-oscuro/80" />
             <div className="absolute right-16 top-0 h-full w-3 -skew-x-12 bg-naranja" />
           </div>
-          <div className="contenedor relative z-10 grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-2">
+          <div className="contenedor relative z-10 grid items-center gap-10 py-10 sm:py-24 lg:grid-cols-2">
             <div>
-              <p className="eyebrow">Soluciones para la construcción</p>
-              <h1 className="mt-4 text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
+              <p className="eyebrow text-[10px] tracking-[0.25em] sm:text-xs sm:tracking-[0.3em]">Soluciones para la construcción</p>
+              <h1 className="mt-3 text-[2.1rem] font-black leading-[1.05] tracking-tight sm:mt-4 sm:text-6xl">
                 Hormigón y materiales para tu obra, <span className="text-naranja">en un solo lugar.</span>
               </h1>
-              <p className="mt-5 max-w-xl text-lg text-stone-300">
+              <p className="mt-4 max-w-xl text-base text-stone-300 sm:mt-5 sm:text-lg">
                 Hormigón elaborado con servicio de bombeo y todos los materiales que necesitás, con un único
                 interlocutor desde la cotización hasta la entrega.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a href={ctaHref} {...ctaExterno} className="btn-naranja">{wa && <Chat />} Pedí tu presupuesto</a>
-                <a href="#calculadora" className="btn-borde">Calculá tus m³</a>
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:flex sm:flex-wrap">
+                <a href={ctaHref} {...ctaExterno} className="btn-naranja px-3 text-xs sm:px-5 sm:text-sm">{wa && <Chat />} Pedí tu presupuesto</a>
+                <a href="#calculadora" className="btn-borde px-3 text-xs sm:px-5 sm:text-sm">Calculá tus m³</a>
+              </div>
+              <div className="mt-6 border-t border-white/10 pt-5 sm:mt-8 sm:pt-6">
+                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-stone-400">Con el respaldo de</p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  {RESPALDO.map((r) => (
+                    <a key={r.nombre} href="#respaldo" title={`${r.nombre} · ${r.rubro}`}
+                      className="flex h-12 flex-1 items-center justify-center rounded-lg bg-white px-3 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 sm:h-14 sm:flex-none sm:px-4">
+                      {r.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.logo.src} alt={r.nombre} width={r.logo.ancho} height={r.logo.alto} className="h-auto max-h-8 w-auto max-w-full object-contain sm:max-h-9 sm:max-w-[11rem]" />
+                      ) : (
+                        <span className="font-black text-grafito">{r.nombre}</span>
+                      )}
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
