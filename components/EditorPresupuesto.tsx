@@ -192,10 +192,18 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
           <Seccion
             unidad="hormigon" items={items} productos={productos}
             onCambiar={cambiarItems} onAgregar={agregarProducto} onLibre={() => agregarLibre("hormigon")}
-            extra={<CalculadoraVolumen onUsar={(v) => {
-              const h21 = productos.find((x) => x.codigo === "H21") ?? productos.find((x) => x.categoria === "hormigon");
-              if (h21) agregarProducto(h21, v);
-            }} />}
+            extra={<CalculadoraVolumen
+              tipos={productos.filter((x) => x.unidad_negocio === "hormigon" && x.categoria === "hormigon")}
+              // Arranca con el último tipo de hormigón cargado en el presupuesto (o H21).
+              tipoInicial={[...items].reverse().find((i) => productos.find((x) => x.id === i.producto_id)?.categoria === "hormigon")?.producto_id
+                ?? productos.find((x) => x.codigo === "H21")?.id}
+              enPresupuesto={(id) => items.some((i) => i.producto_id === id)}
+              onUsar={(v, prod) => {
+                // Si ese tipo ya está en el presupuesto, actualiza su cantidad; si no, lo agrega.
+                const existente = items.find((i) => i.producto_id === prod.id);
+                if (existente) cambiarItems(items.map((i) => (i.id === existente.id ? { ...i, cantidad: v } : i)));
+                else agregarProducto(prod, v);
+              }} />}
             aviso={m3 > 0 && m3 < CARGA_MINIMA_M3 && !tieneFaltante ? (
               <div className="flex flex-wrap items-center gap-2 rounded-md bg-amber-50 p-2 text-sm text-amber-800">
                 Pedido de {m3} m³: menor a la carga mínima de {CARGA_MINIMA_M3} m³.
@@ -329,7 +337,7 @@ function Seccion({ unidad, items, productos, onCambiar, onAgregar, onLibre, extr
         <div className="flex flex-wrap gap-2">
           {tipos.map((x) => (
             <button key={x.id} onClick={() => onAgregar(x)} className="rounded-md border border-stone-300 px-3 py-1 text-sm font-semibold hover:border-naranja hover:text-naranja">
-              + {x.codigo}
+              + {x.codigo || x.descripcion}
             </button>
           ))}
         </div>
@@ -380,27 +388,59 @@ function Seccion({ unidad, items, productos, onCambiar, onAgregar, onLibre, extr
   );
 }
 
-function CalculadoraVolumen({ onUsar }: { onUsar: (m3: number) => void }) {
+function CalculadoraVolumen({ tipos, tipoInicial, enPresupuesto, onUsar }: {
+  tipos: Producto[];
+  tipoInicial?: string;
+  enPresupuesto: (productoId: string) => boolean;
+  onUsar: (m3: number, producto: Producto) => void;
+}) {
   const [abierta, setAbierta] = useState(false);
   const [largo, setLargo] = useState(0);
   const [ancho, setAncho] = useState(0);
   const [espesor, setEspesor] = useState(12);
   const [desp, setDesp] = useState(5);
+  const [tipoId, setTipoId] = useState<string | undefined>(undefined);
   const v = volumen(largo, ancho, espesor, desp);
-  if (!abierta) return <button className="text-sm font-medium text-naranja hover:underline" onClick={() => setAbierta(true)}>📐 Calcular m³ (losa / platea / contrapiso)</button>;
+  const tipo = tipos.find((t) => t.id === (tipoId ?? tipoInicial)) ?? tipos[0];
+  const nombreTipo = (t: Producto) => t.codigo || t.descripcion;
+
+  if (!abierta) {
+    return (
+      <button className="text-sm font-medium text-naranja hover:underline" onClick={() => { setTipoId(undefined); setAbierta(true); }}>
+        📐 Calcular m³ (losa / platea / contrapiso)
+      </button>
+    );
+  }
+  const yaEsta = tipo ? enPresupuesto(tipo.id) : false;
   return (
-    <div className="rounded-lg border border-stone-200 bg-stone-50 p-3">
+    <div className="space-y-3 rounded-lg border border-stone-200 bg-stone-50 p-3">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Num l="Largo (m)" v={largo} set={setLargo} />
         <Num l="Ancho (m)" v={ancho} set={setAncho} />
         <Num l="Espesor (cm)" v={espesor} set={setEspesor} />
         <Num l="Desperdicio %" v={desp} set={setDesp} />
       </div>
-      <div className="mt-2 flex items-center justify-between">
-        <span className="text-sm">Volumen: <strong>{v} m³</strong></span>
+      {tipos.length > 0 && (
+        <div>
+          <span className="label">Tipo de hormigón</span>
+          <div className="flex flex-wrap gap-1.5">
+            {tipos.map((t) => (
+              <button key={t.id} type="button" onClick={() => setTipoId(t.id)}
+                className={`rounded-md border px-2.5 py-1 text-sm font-semibold ${t.id === tipo?.id ? "border-naranja bg-naranja text-white" : "border-stone-300 bg-white"}`}>
+                {nombreTipo(t)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-sm">Volumen: <strong>{v.toLocaleString("es-AR")} m³</strong></span>
         <div className="flex gap-2">
           <button className="btn-secundario px-3 py-1.5" onClick={() => setAbierta(false)}>Cerrar</button>
-          <button className="btn-primario px-3 py-1.5" disabled={v <= 0} onClick={() => { onUsar(v); setAbierta(false); }}>Agregar {v} m³ de H21</button>
+          <button className="btn-primario px-3 py-1.5" disabled={v <= 0 || !tipo}
+            onClick={() => { if (tipo) { onUsar(v, tipo); setAbierta(false); } }}>
+            {tipo ? `${yaEsta ? "Poner" : "Agregar"} ${v.toLocaleString("es-AR")} m³ ${yaEsta ? "en" : "de"} ${nombreTipo(tipo)}` : "Sin tipos de hormigón"}
+          </button>
         </div>
       </div>
     </div>
