@@ -34,7 +34,7 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
 
   async function guardar() {
     setOcupado("guardar");
-    const { id: _id, creado: _c, ...resto } = c!;
+    const { id: _id, creado: _c, origen: _o, ...resto } = c!;
     const { error } = await supabase.from("clientes").update(resto).eq("id", id);
     setOcupado("");
     setGuardado(error ? "Error al guardar" : "Guardado ✓");
@@ -91,6 +91,13 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
           <select className="input" value={c.tipo} onChange={(e) => set("tipo", e.target.value)}>
             {["particular", "arquitecto", "constructora", "corralón", "empresa", "otro"].map((t) => <option key={t}>{t}</option>)}
           </select>
+        </Campo>
+        <Campo l="Estado">
+          <select className="input" value={c.estado} onChange={(e) => set("estado", e.target.value)}>
+            <option value="prospecto">Prospecto (todavía no compró)</option>
+            <option value="cliente">Cliente</option>
+          </select>
+          {c.origen === "web" && <p className="mt-1 text-xs text-stone-500">Llegó desde el formulario de la web.</p>}
         </Campo>
         <Campo l="Condición fiscal">
           <select className="input" value={c.condicion_fiscal} onChange={(e) => set("condicion_fiscal", e.target.value as CondicionFiscal)}>

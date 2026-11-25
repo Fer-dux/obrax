@@ -27,6 +27,8 @@ export type Cliente = {
   notas: string;
   vendedor_id: string | null;
   creado: string;
+  estado: "prospecto" | "cliente";
+  origen: string;
 };
 
 export type Obra = {
