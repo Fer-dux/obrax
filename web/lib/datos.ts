@@ -10,7 +10,7 @@ export const DATOS = {
   whatsapp: "",
   /** Teléfono tal como querés que se vea. Ej: "+54 9 11 1234-5678" */
   telefono: "",
-  email: "",
+  email: "contacto@obraxgroup.com.ar",
   direccion: "",
   localidad: "",
   horarios: "Lunes a viernes de 7 a 17 h · Sábados de 7 a 12 h",
