@@ -99,7 +99,7 @@ export default function Inicio() {
               <li key={b.titulo} className={`flex items-center gap-2.5 sm:gap-4 lg:justify-center lg:px-4 ${i === BENEFICIOS.length - 1 ? "col-span-2 justify-center lg:col-span-1" : ""}`}>
                 <span className="shrink-0 text-white/90 [&>svg]:h-7 [&>svg]:w-7 sm:[&>svg]:h-9 sm:[&>svg]:w-9">{b.icono}</span>
                 <span className="min-w-0">
-                  <span className="block hyphens-auto font-titulo text-[13px] font-bold leading-tight sm:text-[15px]" lang="es">{b.titulo}</span>
+                  <span className="block font-titulo text-[13px] font-bold leading-tight sm:text-[15px]">{b.titulo}</span>
                   <span className="block text-xs text-acero sm:text-sm">{b.texto}</span>
                 </span>
               </li>
@@ -142,7 +142,7 @@ export default function Inicio() {
                 <li key={c.nombre}>
                   <a href={c.href} className="group flex flex-col items-center gap-2 rounded-lg p-1 text-center">
                     <span className="flex h-12 items-center text-grafito transition group-hover:text-naranja">{c.icono}</span>
-                    <span className="hyphens-auto text-xs font-bold leading-tight [overflow-wrap:anywhere] sm:text-sm lg:text-[13px] lg:[overflow-wrap:normal] xl:text-sm" lang="es">{c.nombre}</span>
+                    <span className={`font-bold leading-tight ${c.nombre.length > 14 && !c.nombre.includes(" ") ? "text-[11px] sm:text-sm lg:text-[12px] xl:text-sm" : "text-xs sm:text-sm lg:text-[13px] xl:text-sm"}`}>{c.nombre}</span>
                   </a>
                 </li>
               ))}
