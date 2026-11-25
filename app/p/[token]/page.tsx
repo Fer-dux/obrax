@@ -7,6 +7,12 @@ import { NOMBRE_CONDICION, NOMBRE_UNIDAD, type CondicionFiscal, type Item, type 
 
 export const dynamic = "force-dynamic";
 
+/** Empresas que respaldan a OBRAX Group, una por unidad de negocio. */
+const RESPALDO: Record<UnidadNegocio, { nombre: string; logo: string; ancho: number; alto: number }> = {
+  hormigon: { nombre: "Hormaco", logo: "/logos/hormaco.png", ancho: 429, alto: 89 },
+  materiales: { nombre: "Palermo Materiales", logo: "/logos/palermo-materiales.png", ancho: 199, alto: 61 },
+};
+
 type Datos = {
   presupuesto: Presupuesto;
   cliente: { nombre: string; cuit: string; condicion_fiscal: CondicionFiscal; telefono: string } | null;
@@ -77,8 +83,11 @@ export default async function PresupuestoPublico({ params }: { params: Promise<{
           const propios = items.filter((i) => i.unidad_negocio === u);
           return (
             <section key={u} className="px-8 pb-4">
-              <h2 className={`mb-1 border-b-2 pb-1 text-sm font-bold uppercase tracking-wider ${u === "hormigon" ? "border-grafito" : "border-naranja"}`}>
-                {NOMBRE_UNIDAD[u]}
+              <h2 className={`mb-1 flex items-end justify-between gap-3 border-b-2 pb-1 text-sm font-bold uppercase tracking-wider ${u === "hormigon" ? "border-grafito" : "border-naranja"}`}>
+                <span>{NOMBRE_UNIDAD[u]}</span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={RESPALDO[u].logo} alt={RESPALDO[u].nombre} width={RESPALDO[u].ancho} height={RESPALDO[u].alto}
+                  className="h-auto max-h-6 w-auto object-contain" />
               </h2>
               <table className="w-full text-sm">
                 <thead className="text-left text-[11px] uppercase text-stone-500">
@@ -123,6 +132,15 @@ export default async function PresupuestoPublico({ params }: { params: Promise<{
             <p>Acopio: precios congelados por el plazo acordado; vencido el mismo se actualizan por índice CAC. El hierro no se acopia y se cobra a precio de lista vigente.</p>
           )}
           <p>Pedidos con 48/72 horas de anticipación. Precios sujetos a disponibilidad de stock.</p>
+        </section>
+
+        <section className="mx-8 mb-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-lg border border-stone-200 px-4 py-3">
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-500">Con el respaldo de</span>
+          {(["hormigon", "materiales"] as UnidadNegocio[]).map((u) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={u} src={RESPALDO[u].logo} alt={RESPALDO[u].nombre} width={RESPALDO[u].ancho} height={RESPALDO[u].alto}
+              className="h-auto max-h-9 w-auto max-w-[12rem] object-contain" />
+          ))}
         </section>
 
         <footer className="flex items-center justify-between border-t-4 border-naranja bg-grafito px-8 py-3 text-xs text-stone-300">
