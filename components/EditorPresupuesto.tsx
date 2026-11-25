@@ -90,17 +90,55 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
     if (data) { setObras([...obras, data as Obra]); setP({ ...p, obra_id: data.id }); setSucio(true); }
   }
 
-  const linkPublico = typeof window !== "undefined" ? `${window.location.origin}/p/${p.token}` : `/p/${p.token}`;
+
+  const linkPdf = typeof window !== "undefined" ? `${window.location.origin}/p/${p.token}/pdf` : `/p/${p.token}/pdf`;
+  /** PDF listo para compartir cuando el navegador pidió un segundo toque (iPhone). */
+  const [pdfParaCompartir, setPdfParaCompartir] = useState<File | null>(null);
+
+  function textoWhatsApp(conLink: boolean) {
+    return (
+      `Hola${cliente ? " " + cliente.nombre.split(" ")[0] : ""}! Te envío el presupuesto ${numeroPresupuesto(p.numero)} de OBRAX` +
+      `${t.hormigon > 0 && t.materiales > 0 ? " (hormigón + materiales)" : ""} por un total de ${pesos(t.total)}.` +
+      (conLink ? `\n\nPresupuesto en PDF: ${linkPdf}` : "") +
+      `\n\nVálido hasta el ${fechaAR(venceEl(p.fecha, p.vigencia_dias))}.`
+    );
+  }
+
+  async function compartirArchivo(archivo: File) {
+    try {
+      await navigator.share({ files: [archivo], text: textoWhatsApp(false), title: archivo.name });
+      setPdfParaCompartir(null);
+    } catch (e) {
+      const nombre = (e as Error).name;
+      if (nombre === "NotAllowedError") setPdfParaCompartir(archivo); // pide un toque más
+      else if (nombre !== "AbortError") abrirChatConLink(); // falló: mandamos el link al PDF
+    }
+  }
+
+  function abrirChatConLink() {
+    const tel = telefonoWhatsApp(cliente?.telefono ?? "");
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(textoWhatsApp(true))}`, "_blank");
+  }
 
   async function enviarWhatsApp() {
     const ok = await guardar(p.estado === "borrador" ? { estado: "enviado" } : {});
     if (!ok) return;
-    const tel = telefonoWhatsApp(cliente?.telefono ?? "");
-    const texto =
-      `Hola${cliente ? " " + cliente.nombre.split(" ")[0] : ""}! Te envío el presupuesto ${numeroPresupuesto(p.numero)} de OBRAX` +
-      `${t.hormigon > 0 && t.materiales > 0 ? " (hormigón + materiales)" : ""} por un total de ${pesos(t.total)}.\n\n` +
-      `Podés verlo y descargarlo acá: ${linkPublico}\n\nVálido hasta el ${fechaAR(venceEl(p.fecha, p.vigencia_dias))}.`;
-    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(texto)}`, "_blank");
+    // Celular: compartir el PDF como archivo (se elige WhatsApp y el contacto).
+    const puedeArchivos = typeof navigator !== "undefined" && "canShare" in navigator &&
+      navigator.canShare({ files: [new File([""], "x.pdf", { type: "application/pdf" })] });
+    if (puedeArchivos) {
+      try {
+        const r = await fetch(`/p/${p.token}/pdf`);
+        if (!r.ok) throw new Error("pdf");
+        const archivo = new File([await r.blob()], `Presupuesto-${numeroPresupuesto(p.numero)}-OBRAX.pdf`, { type: "application/pdf" });
+        await compartirArchivo(archivo);
+        return;
+      } catch {
+        /* sigue con el link */
+      }
+    }
+    // Computadora (o sin soporte): chat de WhatsApp con el link directo al PDF.
+    abrirChatConLink();
   }
 
   async function verPdf() {
@@ -156,6 +194,14 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
           {accion === "eliminar" ? <Spinner /> : "🗑"}
         </button>
       </div>
+
+      {pdfParaCompartir && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm">
+          <span className="flex-1">El PDF está listo. Tocá el botón para elegir WhatsApp y el contacto.</span>
+          <button className="btn-whatsapp" onClick={() => compartirArchivo(pdfParaCompartir)}>Enviar PDF</button>
+          <button className="text-stone-500" onClick={() => setPdfParaCompartir(null)}>Cancelar</button>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Columna principal */}

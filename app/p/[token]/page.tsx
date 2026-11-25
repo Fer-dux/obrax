@@ -49,7 +49,7 @@ export default async function PresupuestoPublico({ params, searchParams }: {
     <div className="min-h-screen bg-stone-200 pb-6 pt-[max(1.5rem,env(safe-area-inset-top))] print:bg-white print:py-0">
       <div className={`no-imprimir mx-auto mb-4 flex max-w-[210mm] gap-2 px-4 ${volverA ? "justify-between" : "justify-end"}`}>
         {volverA && <Link href={volverA} className="btn-secundario">← Volver al presupuesto</Link>}
-        <BotonImprimir />
+        <BotonImprimir token={token} />
       </div>
 
       <article className="mx-auto max-w-[210mm] bg-white shadow-lg print:shadow-none">

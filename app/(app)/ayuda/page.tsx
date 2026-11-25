@@ -22,15 +22,16 @@ const TEMAS: Tema[] = [
   },
   {
     id: "enviar",
-    titulo: "Enviar el presupuesto por WhatsApp o PDF",
+    titulo: "Enviar el presupuesto por WhatsApp (PDF)",
     icono: "💬",
     pasos: [
       <>El cliente tiene que tener el <b>teléfono cargado</b> en su ficha.</>,
-      <>Dentro del presupuesto, tocá el botón verde <b>WhatsApp</b>: se abre tu WhatsApp con el chat del cliente y el mensaje ya escrito (total, vencimiento y link al presupuesto).</>,
-      <>Tocá <b>Enviar</b> en WhatsApp. El presupuesto pasa solo a estado <b>Enviado</b>.</>,
-      <>Con <b>Ver / PDF</b> abrís el presupuesto con la marca de OBRAX; desde ahí <b>Descargar PDF / Imprimir</b>.</>,
+      <>Dentro del presupuesto tocá el botón verde <b>WhatsApp</b>.</>,
+      <><b>En el celular</b> se abre el menú de compartir con el <b>PDF adjunto</b>: elegí WhatsApp y el contacto. Si aparece el aviso verde “El PDF está listo”, tocá <b>Enviar PDF</b>.</>,
+      <><b>En la computadora</b> se abre el chat del cliente con el mensaje y un link que abre <b>directamente el PDF</b>.</>,
+      <>El presupuesto pasa solo a estado <b>Enviado</b>. Con <b>Ver / PDF</b> lo revisás antes y con <b>Descargar PDF</b> lo guardás.</>,
     ],
-    tip: <>El cliente ve el presupuesto desde el link sin necesidad de usuario ni contraseña.</>,
+    tip: <>El cliente no necesita usuario: el PDF y el link son públicos (solo los puede abrir quien tenga el link).</>,
   },
   {
     id: "estados",
