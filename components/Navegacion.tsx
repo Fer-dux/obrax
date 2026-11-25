@@ -43,7 +43,11 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
             <span className="hidden text-stone-300 md:inline">
               {nombre}{esAdmin && <span className="ml-1 rounded bg-naranja/20 px-1.5 text-xs text-naranja">admin</span>}
             </span>
-            <Link href="/presupuestos/nuevo" prefetch={false} className="btn-primario px-3 py-1.5">+ Presupuesto</Link>
+            <Link href="/ayuda" title="Ayuda" aria-label="Ayuda"
+              className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-bold ${activo("/ayuda") ? "border-naranja bg-naranja text-white" : "border-stone-500 text-stone-300 hover:border-white hover:text-white"}`}>
+              ?
+            </Link>
+            <Link href="/presupuestos/nuevo" prefetch={false} className="btn-primario px-3 py-1.5"><span className="sm:hidden">+ Nuevo</span><span className="hidden sm:inline">+ Presupuesto</span></Link>
             <button onClick={salir} className="text-stone-400 hover:text-white">Salir</button>
           </div>
         </div>
