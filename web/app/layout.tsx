@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 
-const fuente = Montserrat({ subsets: ["latin"], variable: "--fuente" });
+const titulo = Manrope({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--fuente-titulo", display: "swap" });
+const texto = Inter({ subsets: ["latin"], variable: "--fuente-texto", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://obraxgroup.com.ar"),
@@ -19,11 +20,11 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: "#1F2A33", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#111315", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-AR" className={fuente.variable}>
+    <html lang="es-AR" className={`${titulo.variable} ${texto.variable}`}>
       <body>{children}</body>
     </html>
   );
