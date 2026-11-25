@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { crearClienteNavegador } from "@/lib/supabase/client";
 import { NOMBRE_UNIDAD, type Producto, type UnidadNegocio } from "@/lib/tipos";
 import { pesos, fechaAR } from "@/lib/calculos";
+import { TarjetaProducto } from "@/components/TarjetaProducto";
 
 export default function Precios() {
   const supabase = useMemo(() => crearClienteNavegador(), []);
@@ -75,23 +76,34 @@ export default function Precios() {
             {NOMBRE_UNIDAD[u]}
           </button>
         ))}
-        <input className="input ml-auto max-w-xs" placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="input w-full sm:ml-auto sm:w-auto sm:max-w-xs" placeholder="Buscar producto…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
 
       <p className="text-xs text-stone-500">Precios finales <strong>con IVA incluido</strong>. {!esAdmin && "Solo un administrador puede modificarlos."}</p>
 
       {esAdmin && (
         <div className="tarjeta flex flex-wrap items-end gap-3">
-          <div>
-            <label className="label">Actualización masiva (%)</label>
-            <input className="input w-32" value={pct} onChange={(e) => setPct(e.target.value)} placeholder="ej. 4,5" />
+          <div className="flex flex-1 items-end gap-2">
+            <div className="w-28">
+              <label className="label">Aumento %</label>
+              <input className="input" inputMode="decimal" value={pct} onChange={(e) => setPct(e.target.value)} placeholder="4,5" />
+            </div>
+            <button className="btn-secundario" onClick={aumentoMasivo}>Aplicar a todo</button>
           </div>
-          <button className="btn-secundario" onClick={aumentoMasivo}>Aplicar a {NOMBRE_UNIDAD[unidad]}</button>
-          <button className="btn-primario ml-auto" onClick={agregar}>+ Producto</button>
+          <button className="btn-primario w-full sm:w-auto" onClick={agregar}>+ Producto</button>
         </div>
       )}
 
-      <div className="tarjeta overflow-x-auto p-0 sm:p-0">
+      {/* Celular: tarjetas */}
+      <div className="space-y-2 md:hidden">
+        {filtrados.map((p) => (
+          <TarjetaProducto key={p.id} p={p} esAdmin={esAdmin} upd={upd} guardar={guardar} />
+        ))}
+        {filtrados.length === 0 && <p className="tarjeta text-center text-sm text-stone-500">Sin productos.</p>}
+      </div>
+
+      {/* Computadora: tabla */}
+      <div className="tarjeta hidden overflow-x-auto p-0 sm:p-0 md:block">
         <table className="w-full text-sm">
           <thead className="bg-stone-50 text-left text-xs uppercase text-stone-500">
             <tr>
@@ -131,3 +143,4 @@ export default function Precios() {
     </div>
   );
 }
+

@@ -166,7 +166,36 @@ export function GestionUsuarios({ usuarios, yoId, configurado }: Props) {
         </div>
       )}
 
-      <div className="tarjeta overflow-x-auto p-0 sm:p-0">
+      {/* Celular: tarjetas */}
+      <div className="space-y-2 md:hidden">
+        {visibles.map((u) => (
+          <div key={u.id} className={`tarjeta p-3 ${u.activo ? "" : "opacity-60"}`}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-semibold">{u.nombre}{u.id === yoId && <span className="ml-1 text-xs font-normal text-stone-400">(vos)</span>}</div>
+                <div className="truncate text-sm text-stone-500">{u.email}</div>
+                <div className="text-sm">{descripcionPerfil(u)}</div>
+              </div>
+              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${u.activo ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"}`}>
+                {u.activo ? "Activo" : "Inactivo"}
+              </span>
+            </div>
+            {configurado && (
+              <div className="mt-3 flex gap-2 border-t border-stone-100 pt-3 text-sm">
+                <button className="btn-secundario flex-1 px-2 py-1.5" onClick={() => abrirEditar(u)}>Editar</button>
+                <button className="btn-secundario flex-1 px-2 py-1.5" onClick={() => nuevaClave(u)}>Contraseña</button>
+                {u.id !== yoId && (
+                  <button className={`btn-secundario flex-1 px-2 py-1.5 ${u.activo ? "text-red-600" : "text-green-700"}`} onClick={() => alternarEstado(u)}>
+                    {u.activo ? "Desactivar" : "Reactivar"}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="tarjeta hidden overflow-x-auto p-0 sm:p-0 md:block">
         <table className="w-full text-sm">
           <thead className="bg-stone-50 text-left text-xs uppercase text-stone-500">
             <tr><th className="px-4 py-2">Nombre</th><th>Email</th><th>Perfil</th><th>Comisiones</th><th>Estado</th><th /></tr>

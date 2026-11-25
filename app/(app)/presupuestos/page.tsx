@@ -36,7 +36,33 @@ export default async function Presupuestos({ searchParams }: { searchParams: Pro
           </Link>
         ))}
       </div>
-      <div className="tarjeta overflow-x-auto p-0 sm:p-0">
+      {/* Celular: tarjetas */}
+      <div className="space-y-2 md:hidden">
+        {lista.length === 0 && <p className="tarjeta text-center text-sm text-stone-500">No hay presupuestos.</p>}
+        {lista.map((p) => {
+          const t = totales(p.presupuesto_items, p.descuento);
+          return (
+            <div key={p.id} className="tarjeta flex items-center gap-3 p-3">
+              <Link href={`/presupuestos/${p.id}`} className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-naranja">{numeroPresupuesto(p.numero)}</span>
+                  <EstadoBadge estado={p.estado} />
+                  {t.hormigon > 0 && <span className="rounded bg-grafito px-1 text-[10px] text-white">H</span>}
+                  {t.materiales > 0 && <span className="rounded bg-naranja px-1 text-[10px] text-white">M</span>}
+                </div>
+                <div className="mt-1 truncate font-semibold">{p.clientes?.nombre ?? "Sin cliente"}</div>
+                <div className="flex justify-between text-sm">
+                  <span className="truncate text-stone-500">{fechaAR(p.fecha)}{p.obras?.nombre ? ` · ${p.obras.nombre}` : ""}</span>
+                  <span className="shrink-0 font-bold">{pesos(t.total)}</span>
+                </div>
+              </Link>
+              <BotonEliminarPresupuesto id={p.id} numero={numeroPresupuesto(p.numero)} />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="tarjeta hidden overflow-x-auto p-0 sm:p-0 md:block">
         {lista.length === 0 ? (
           <p className="p-8 text-center text-sm text-stone-500">No hay presupuestos.</p>
         ) : (

@@ -28,10 +28,25 @@ export default function Clientes() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="titulo flex-1">Clientes</h1>
-        <input className="input max-w-xs" placeholder="Buscar nombre, CUIT, teléfono…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="input order-last w-full sm:order-none sm:w-auto sm:max-w-xs" placeholder="Buscar nombre, CUIT, teléfono…" value={q} onChange={(e) => setQ(e.target.value)} />
         <button className="btn-primario" onClick={nuevo}>+ Cliente</button>
       </div>
-      <div className="tarjeta overflow-x-auto p-0 sm:p-0">
+      {/* Celular: tarjetas */}
+      {lista !== null && (
+        <div className="space-y-2 md:hidden">
+          {filtrados.length === 0 && <p className="tarjeta text-center text-sm text-stone-500">No hay clientes cargados.</p>}
+          {filtrados.map((c) => (
+            <Link key={c.id} href={`/clientes/${c.id}`} className="tarjeta block p-3">
+              <div className="font-semibold">{c.nombre}</div>
+              <div className="text-sm text-stone-500">
+                {[c.tipo, NOMBRE_CONDICION[c.condicion_fiscal], c.telefono].filter(Boolean).join(" · ")}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <div className="tarjeta hidden overflow-x-auto p-0 sm:p-0 md:block">
         {lista === null ? (
           <p className="p-6 text-sm text-stone-500">Cargando…</p>
         ) : filtrados.length === 0 ? (
