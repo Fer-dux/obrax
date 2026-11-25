@@ -1,7 +1,8 @@
 import { Logo } from "@/components/Logo";
 import { Calculadora } from "@/components/Calculadora";
+import { FormularioConsulta } from "@/components/FormularioConsulta";
 import { Bomba, Camion, Casco, Chat, Escudo, Ladrillos, Mixer, Reloj } from "@/components/Iconos";
-import { DATOS, linkWhatsApp } from "@/lib/datos";
+import { DATOS, RESPALDO, linkWhatsApp } from "@/lib/datos";
 
 const HORMIGONES = [
   { tipo: "H8", uso: "Hormigón de limpieza y rellenos" },
@@ -76,6 +77,35 @@ export default function Inicio() {
           <div className="relative z-10 border-t border-white/10 bg-grafito-oscuro">
             <div className="contenedor flex flex-wrap items-center justify-center gap-x-6 gap-y-1 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-stone-300">
               <span>Solidez</span><span className="text-naranja">|</span><span>Confianza</span><span className="text-naranja">|</span><span>Respaldo</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ───── Respaldo ───── */}
+        <section id="respaldo" className="border-b border-stone-200 bg-white py-14 sm:py-16">
+          <div className="contenedor">
+            <div className="text-center">
+              <p className="eyebrow">OBRAX Group</p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Con el respaldo de dos empresas líderes</h2>
+              <p className="mx-auto mt-3 max-w-2xl text-stone-600">
+                OBRAX reúne la experiencia de dos referentes del rubro para que tengas hormigón y materiales con una sola empresa.
+              </p>
+            </div>
+            <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-2">
+              {RESPALDO.map((r) => (
+                <a key={r.nombre} href={r.web} target="_blank" rel="noopener"
+                  className="group relative overflow-hidden rounded-2xl border border-stone-200 p-6 transition hover:-translate-y-0.5 hover:border-naranja hover:shadow-lg">
+                  <span className="absolute right-0 top-0 rounded-bl-xl bg-grafito px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white group-hover:bg-naranja">
+                    {r.unidad}
+                  </span>
+                  <div className="text-2xl font-black tracking-tight">{r.nombre}</div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-naranja">{r.rubro}</div>
+                  <p className="mt-4 text-sm text-stone-600">{r.texto}</p>
+                  <span className="mt-4 inline-block text-sm font-semibold text-grafito group-hover:text-naranja">
+                    {r.web.replace("https://", "")} →
+                  </span>
+                </a>
+              ))}
             </div>
           </div>
         </section>
@@ -170,37 +200,33 @@ export default function Inicio() {
         </section>
 
         {/* ───── Contacto ───── */}
-        <section id="contacto" className="bg-grafito py-16 text-white sm:py-24">
-          <div className="contenedor grid gap-10 lg:grid-cols-2">
+        <section id="contacto" className="hormigon py-16 text-white sm:py-24">
+          <div className="contenedor grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-start">
             <div>
               <p className="eyebrow">Contacto</p>
               <h2 className="titulo-seccion">Pedí tu presupuesto</h2>
               <p className="mt-4 max-w-md text-stone-300">
-                Contanos qué necesitás para tu obra y te respondemos con un presupuesto detallado.
+                Completá el formulario con lo que necesitás para tu obra y te respondemos con un presupuesto detallado.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                {wa && <a href={wa} target="_blank" rel="noopener" className="btn-naranja"><Chat /> WhatsApp</a>}
-                {DATOS.telefono && <a href={`tel:${DATOS.telefono.replace(/[^\d+]/g, "")}`} className="btn-borde">Llamar</a>}
-                {DATOS.email && <a href={`mailto:${DATOS.email}`} className="btn-borde">Email</a>}
-              </div>
-              {!wa && !DATOS.telefono && !DATOS.email && (
-                <p className="mt-6 rounded-lg border border-dashed border-naranja/60 p-4 text-sm text-naranja">
-                  Próximamente: WhatsApp, teléfono y email de contacto.
-                </p>
-              )}
+              <dl className="mt-8 grid gap-6 rounded-2xl bg-white/5 p-6">
+                {DATOS.email && (
+                  <div>
+                    <dt className="text-xs font-bold uppercase tracking-widest text-naranja">Email</dt>
+                    <dd className="mt-1"><a href={`mailto:${DATOS.email}`} className="hover:underline">{DATOS.email}</a></dd>
+                  </div>
+                )}
+                {DATOS.telefono && <Dato titulo="Teléfono" valor={DATOS.telefono} />}
+                {(DATOS.direccion || DATOS.localidad) && <Dato titulo="Dirección" valor={[DATOS.direccion, DATOS.localidad].filter(Boolean).join(", ")} />}
+                <Dato titulo="Horarios" valor={DATOS.horarios} />
+                <div>
+                  <dt className="text-xs font-bold uppercase tracking-widest text-naranja">Zonas de entrega</dt>
+                  <dd className="mt-2 flex flex-wrap gap-2">
+                    {DATOS.zonas.map((z) => <span key={z} className="rounded-full bg-white/10 px-3 py-1 text-sm">{z}</span>)}
+                  </dd>
+                </div>
+              </dl>
             </div>
-            <dl className="grid gap-6 rounded-2xl bg-white/5 p-6 sm:grid-cols-2">
-              {DATOS.telefono && <Dato titulo="Teléfono" valor={DATOS.telefono} />}
-              {DATOS.email && <Dato titulo="Email" valor={DATOS.email} />}
-              {(DATOS.direccion || DATOS.localidad) && <Dato titulo="Dirección" valor={[DATOS.direccion, DATOS.localidad].filter(Boolean).join(", ")} />}
-              <Dato titulo="Horarios" valor={DATOS.horarios} />
-              <div className="sm:col-span-2">
-                <dt className="text-xs font-bold uppercase tracking-widest text-naranja">Zonas de entrega</dt>
-                <dd className="mt-2 flex flex-wrap gap-2">
-                  {DATOS.zonas.map((z) => <span key={z} className="rounded-full bg-white/10 px-3 py-1 text-sm">{z}</span>)}
-                </dd>
-              </div>
-            </dl>
+            <FormularioConsulta />
           </div>
         </section>
       </main>
@@ -209,7 +235,7 @@ export default function Inicio() {
       <footer className="border-t-4 border-naranja bg-grafito-oscuro py-8 text-sm text-stone-400">
         <div className="contenedor flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Logo className="h-6" claro />
-          <p>© {new Date().getFullYear()} OBRAX · Soluciones para la construcción</p>
+          <p className="text-center">© {new Date().getFullYear()} OBRAX Group · Con el respaldo de {RESPALDO.map((r) => r.nombre).join(" y ")}</p>
           <a href={DATOS.app} className="hover:text-white">Acceso equipo →</a>
         </div>
       </footer>

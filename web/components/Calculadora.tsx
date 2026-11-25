@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { linkWhatsApp } from "@/lib/datos";
+import { EVENTO_PREFILL } from "./FormularioConsulta";
 
 const TIPOS = ["H8", "H13", "H17", "H21", "H25", "H30"];
 const ELEMENTOS = [
@@ -19,10 +19,14 @@ export function Calculadora() {
 
   const bruto = largo * ancho * (espesor / 100);
   const m3 = Math.ceil(bruto * 1.05 * 2) / 2; // +5% desperdicio, redondeo a 0,5 m³
-  const wa = linkWhatsApp(
-    `Hola OBRAX! Quiero presupuesto de hormigón ${tipo} para ${elemento.nombre.toLowerCase()} de ${largo} x ${ancho} m, ` +
-      `${espesor} cm de espesor (aprox. ${m3.toLocaleString("es-AR")} m³).`,
-  );
+  function pedir() {
+    const mensaje =
+      `Hormigón ${tipo} para ${elemento.nombre.toLowerCase()} de ${largo} x ${ancho} m, ` +
+      `${espesor} cm de espesor (aprox. ${m3.toLocaleString("es-AR")} m³).`;
+    window.dispatchEvent(new CustomEvent(EVENTO_PREFILL, { detail: { mensaje, necesita: "Hormigón" } }));
+    document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => document.getElementById("nombre")?.focus({ preventScroll: true }), 600);
+  }
 
   return (
     <div className="rounded-2xl bg-white p-5 text-grafito shadow-2xl sm:p-7">
@@ -62,11 +66,7 @@ export function Calculadora() {
         </div>
         <p className="max-w-[10rem] text-right text-xs text-stone-500">Incluye 5% de desperdicio. Cálculo orientativo.</p>
       </div>
-      {wa ? (
-        <a href={wa} target="_blank" rel="noopener" className="btn-naranja mt-4 w-full">Pedir presupuesto por WhatsApp</a>
-      ) : (
-        <a href="#contacto" className="btn-naranja mt-4 w-full">Pedir presupuesto</a>
-      )}
+      <button onClick={pedir} className="btn-naranja mt-4 w-full">Pedir presupuesto de {m3.toLocaleString("es-AR")} m³</button>
     </div>
   );
 }
