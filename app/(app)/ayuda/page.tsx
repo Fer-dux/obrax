@@ -45,6 +45,18 @@ const TEMAS: Tema[] = [
     tip: <>Cambiá el estado desde el desplegable <b>Estado</b> dentro de cada presupuesto y tocá <b>Guardar</b>.</>,
   },
   {
+    id: "consultas",
+    titulo: "Consultas de la web",
+    icono: "✉",
+    pasos: [
+      <>Cuando alguien completa el formulario de <b>obraxgroup.com.ar</b>, aparece en <b>Consultas</b> (con un número naranja en el menú) y llega un mail a contacto@.</>,
+      <>Tocá <b>WhatsApp</b> para escribirle (la consulta pasa a <b>En curso</b>) o <b>Tomar</b> para marcar que la atendés vos.</>,
+      <>Con <b>Hacer presupuesto</b> la app crea el cliente (o usa el que ya existe con ese teléfono o email), la obra y un presupuesto con el pedido en las notas. Solo te queda cargar los productos.</>,
+      <>Si no corresponde, tocá <b>Descartar</b>. Se puede <b>Reabrir</b> después.</>,
+    ],
+    tip: <>Las consultas pendientes también aparecen arriba del <b>Panel</b>.</>,
+  },
+  {
     id: "clientes",
     titulo: "Clientes y obras",
     icono: "☺",

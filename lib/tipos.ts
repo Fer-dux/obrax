@@ -84,6 +84,31 @@ export type Item = {
   orden: number;
 };
 
+export type EstadoConsulta = "nueva" | "en_curso" | "presupuestada" | "descartada";
+
+export type Consulta = {
+  id: string;
+  creado: string;
+  nombre: string;
+  telefono: string;
+  email: string;
+  necesita: string;
+  obra: string;
+  mensaje: string;
+  origen: string;
+  estado: EstadoConsulta;
+  atendida_por: string | null;
+  cliente_id: string | null;
+  presupuesto_id: string | null;
+};
+
+export const NOMBRE_ESTADO_CONSULTA: Record<EstadoConsulta, string> = {
+  nueva: "Nueva",
+  en_curso: "En curso",
+  presupuestada: "Presupuestada",
+  descartada: "Descartada",
+};
+
 export const NOMBRE_UNIDAD: Record<UnidadNegocio, string> = {
   hormigon: "Hormigón",
   materiales: "Materiales",

@@ -12,13 +12,14 @@ export default async function Panel() {
   inicioMes.setDate(1);
   const desde = inicioMes.toISOString().slice(0, 10);
 
-  const [{ data: presupuestos }, { count: clientes }] = await Promise.all([
+  const [{ data: presupuestos }, { count: clientes }, { count: consultasNuevas }] = await Promise.all([
     supabase
       .from("presupuestos")
       .select("*, presupuesto_items(*), clientes(nombre), perfiles(nombre)")
       .gte("fecha", desde)
       .order("actualizado", { ascending: false }),
     supabase.from("clientes").select("id", { count: "exact", head: true }),
+    supabase.from("consultas").select("id", { count: "exact", head: true }).eq("estado", "nueva"),
   ]);
 
   const lista = (presupuestos ?? []) as Fila[];
@@ -44,6 +45,17 @@ export default async function Panel() {
           <p className="text-sm text-stone-500">Mes en curso · desde {fechaAR(desde)}</p>
         </div>
       </div>
+
+      {(consultasNuevas ?? 0) > 0 && (
+        <Link href="/consultas" className="tarjeta flex items-center gap-3 border-l-4 border-l-naranja bg-naranja-claro hover:shadow-md">
+          <span className="text-2xl">✉</span>
+          <span className="flex-1">
+            <b>{consultasNuevas} consulta{consultasNuevas === 1 ? "" : "s"} nueva{consultasNuevas === 1 ? "" : "s"}</b> desde la web
+            <span className="block text-sm text-stone-600">Respondelas o pasalas a presupuesto.</span>
+          </span>
+          <span className="font-semibold text-naranja">Ver →</span>
+        </Link>
+      )}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Dato titulo="Ventas hormigón" valor={pesos(sum(aceptados, "hormigon"))} acento />
