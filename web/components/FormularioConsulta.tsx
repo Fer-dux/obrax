@@ -4,12 +4,19 @@ import { useEffect, useRef, useState } from "react";
 export const EVENTO_PREFILL = "obrax:prefill-consulta";
 const OPCIONES = ["Hormigón", "Materiales", "Hormigón y materiales", "Otro"];
 
-export function FormularioConsulta() {
+export function FormularioConsulta({ mensajeInicial = "", necesitaInicial = "Hormigón", compacto = false, autoFoco = false }: {
+  mensajeInicial?: string;
+  necesitaInicial?: string;
+  /** Sin sombra ni fondo propio (para usar dentro de una ventana). */
+  compacto?: boolean;
+  autoFoco?: boolean;
+} = {}) {
   const [estado, setEstado] = useState<"idle" | "enviando" | "ok" | "error">("idle");
   const [error, setError] = useState("");
-  const [necesita, setNecesita] = useState("Hormigón");
-  const [mensaje, setMensaje] = useState("");
+  const [necesita, setNecesita] = useState(necesitaInicial);
+  const [mensaje, setMensaje] = useState(mensajeInicial);
   const abierto = useRef(Date.now());
+  const pre = compacto ? "m-" : ""; // ids únicos si el formulario aparece dos veces
 
   // La calculadora de m³ completa el pedido.
   useEffect(() => {
@@ -51,7 +58,7 @@ export function FormularioConsulta() {
 
   if (estado === "ok") {
     return (
-      <div className="rounded-2xl bg-white p-8 text-center text-grafito shadow-2xl">
+      <div className={`rounded-2xl bg-white p-8 text-center text-grafito ${compacto ? "" : "shadow-2xl"}`}>
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-3xl text-green-600">✓</div>
         <h3 className="mt-4 text-xl font-black">¡Recibimos tu consulta!</h3>
         <p className="mt-2 text-stone-600">Te contactamos a la brevedad con tu presupuesto.</p>
@@ -64,7 +71,7 @@ export function FormularioConsulta() {
   const etiqueta = "mb-1 block text-xs font-bold uppercase tracking-wide text-stone-500";
 
   return (
-    <form onSubmit={enviar} className="space-y-4 rounded-2xl bg-white p-5 text-grafito shadow-2xl sm:p-7">
+    <form onSubmit={enviar} className={`space-y-4 rounded-2xl bg-white text-grafito ${compacto ? "" : "p-5 shadow-2xl sm:p-7"}`}>
       <div>
         <span className={etiqueta}>¿Qué necesitás?</span>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -78,24 +85,24 @@ export function FormularioConsulta() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className={etiqueta} htmlFor="nombre">Nombre y apellido *</label>
-          <input id="nombre" name="nombre" required minLength={2} maxLength={120} autoComplete="name" className={campo} />
+          <label className={etiqueta} htmlFor={`${pre}nombre`}>Nombre y apellido *</label>
+          <input id={`${pre}nombre`} autoFocus={autoFoco} name="nombre" required minLength={2} maxLength={120} autoComplete="name" className={campo} />
         </div>
         <div>
-          <label className={etiqueta} htmlFor="telefono">Teléfono / WhatsApp</label>
-          <input id="telefono" name="telefono" type="tel" inputMode="tel" maxLength={40} autoComplete="tel" placeholder="11 2345 6789" className={campo} />
+          <label className={etiqueta} htmlFor={`${pre}telefono`}>Teléfono / WhatsApp</label>
+          <input id={`${pre}telefono`} name="telefono" type="tel" inputMode="tel" maxLength={40} autoComplete="tel" placeholder="11 2345 6789" className={campo} />
         </div>
         <div>
-          <label className={etiqueta} htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" maxLength={160} autoComplete="email" className={campo} />
+          <label className={etiqueta} htmlFor={`${pre}email`}>Email</label>
+          <input id={`${pre}email`} name="email" type="email" maxLength={160} autoComplete="email" className={campo} />
         </div>
         <div className="sm:col-span-2">
-          <label className={etiqueta} htmlFor="obra">Ubicación de la obra</label>
-          <input id="obra" name="obra" maxLength={200} placeholder="Calle, localidad" className={campo} />
+          <label className={etiqueta} htmlFor={`${pre}obra`}>Ubicación de la obra</label>
+          <input id={`${pre}obra`} name="obra" maxLength={200} placeholder="Calle, localidad" className={campo} />
         </div>
         <div className="sm:col-span-2">
-          <label className={etiqueta} htmlFor="mensaje">Contanos qué necesitás</label>
-          <textarea id="mensaje" name="mensaje" rows={4} maxLength={2000} value={mensaje} onChange={(e) => setMensaje(e.target.value)}
+          <label className={etiqueta} htmlFor={`${pre}mensaje`}>Contanos qué necesitás</label>
+          <textarea id={`${pre}mensaje`} name="mensaje" rows={4} maxLength={2000} value={mensaje} onChange={(e) => setMensaje(e.target.value)}
             placeholder="Ej.: 12 m³ de H21 para una losa, con bomba. También cemento y arena." className={campo} />
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { EVENTO_PREFILL } from "./FormularioConsulta";
+import { useEffect, useState } from "react";
+import { FormularioConsulta } from "./FormularioConsulta";
 
 const TIPOS = ["H8", "H13", "H17", "H21", "H25", "H30"];
 const ELEMENTOS = [
@@ -16,16 +16,25 @@ export function Calculadora() {
   const [ancho, setAncho] = useState(5);
   const [espesor, setEspesor] = useState(ELEMENTOS[0].espesor);
   const [tipo, setTipo] = useState("H21");
+  const [ventana, setVentana] = useState<string | null>(null);
+
+  // Bloquea el scroll de fondo y cierra con Escape mientras la ventana está abierta.
+  useEffect(() => {
+    if (!ventana) return;
+    const previo = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setVentana(null);
+    window.addEventListener("keydown", esc);
+    return () => { document.body.style.overflow = previo; window.removeEventListener("keydown", esc); };
+  }, [ventana]);
 
   const bruto = largo * ancho * (espesor / 100);
   const m3 = Math.ceil(bruto * 1.05 * 2) / 2; // +5% desperdicio, redondeo a 0,5 m³
   function pedir() {
-    const mensaje =
+    setVentana(
       `Hormigón ${tipo} para ${elemento.nombre.toLowerCase()} de ${largo} x ${ancho} m, ` +
-      `${espesor} cm de espesor (aprox. ${m3.toLocaleString("es-AR")} m³).`;
-    window.dispatchEvent(new CustomEvent(EVENTO_PREFILL, { detail: { mensaje, necesita: "Hormigón" } }));
-    document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
-    setTimeout(() => document.getElementById("nombre")?.focus({ preventScroll: true }), 600);
+        `${espesor} cm de espesor (aprox. ${m3.toLocaleString("es-AR")} m³).`,
+    );
   }
 
   return (
@@ -67,6 +76,24 @@ export function Calculadora() {
         <p className="max-w-[10rem] text-right text-xs text-stone-500">Incluye 5% de desperdicio. Cálculo orientativo.</p>
       </div>
       <button onClick={pedir} className="btn-naranja mt-4 w-full">Pedir presupuesto de {m3.toLocaleString("es-AR")} m³</button>
+
+      {ventana && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+          role="dialog" aria-modal="true" aria-label="Pedir presupuesto" onClick={() => setVentana(null)}>
+          <div className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:rounded-2xl sm:p-6"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-naranja">Pedí tu presupuesto</p>
+                <h3 className="mt-1 text-xl font-black text-grafito">{m3.toLocaleString("es-AR")} m³ de {tipo}</h3>
+              </div>
+              <button onClick={() => setVentana(null)} aria-label="Cerrar"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xl text-stone-500 hover:bg-stone-200">×</button>
+            </div>
+            <FormularioConsulta mensajeInicial={ventana} necesitaInicial="Hormigón" compacto autoFoco />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
