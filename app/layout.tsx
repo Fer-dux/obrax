@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
+import { Suspense } from "react";
+import { BarraCarga } from "@/components/BarraCarga";
 import "./globals.css";
 
 const fuente = Montserrat({ subsets: ["latin"], variable: "--fuente" });
@@ -27,7 +29,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-AR" className={fuente.variable}>
-      <body className="min-h-screen antialiased">{children}</body>
+      <body className="min-h-screen antialiased">
+        <Suspense fallback={null}><BarraCarga /></Suspense>
+        {children}
+      </body>
     </html>
   );
 }

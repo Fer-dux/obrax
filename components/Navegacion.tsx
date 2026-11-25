@@ -3,6 +3,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
 import { crearClienteNavegador } from "@/lib/supabase/client";
+import { useState } from "react";
+import { Spinner } from "./Spinner";
+import { iniciarCarga } from "./BarraCarga";
 
 const ENLACES = [
   { href: "/", texto: "Panel", icono: "▦" },
@@ -17,7 +20,10 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
   const activo = (h: string) => (h === "/" ? ruta === "/" : ruta.startsWith(h));
   const enlaces = esAdmin ? [...ENLACES, { href: "/usuarios", texto: "Usuarios", icono: "👥" }] : ENLACES;
 
+  const [saliendo, setSaliendo] = useState(false);
   async function salir() {
+    setSaliendo(true);
+    iniciarCarga();
     await crearClienteNavegador().auth.signOut();
     router.replace("/login");
     router.refresh();
@@ -48,7 +54,7 @@ export function Navegacion({ nombre, esAdmin }: { nombre: string; esAdmin: boole
               ?
             </Link>
             <Link href="/presupuestos/nuevo" prefetch={false} className="btn-primario px-3 py-1.5"><span className="sm:hidden">+ Nuevo</span><span className="hidden sm:inline">+ Presupuesto</span></Link>
-            <button onClick={salir} className="text-stone-400 hover:text-white">Salir</button>
+            <button onClick={salir} disabled={saliendo} className="inline-flex items-center gap-1 text-stone-400 hover:text-white">{saliendo ? <Spinner /> : "Salir"}</button>
           </div>
         </div>
       </header>

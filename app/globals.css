@@ -10,12 +10,13 @@ input, select, textarea { min-width: 0; }
   input, select, textarea { font-size: 16px !important; }
 }
 /* Sin zoom por doble toque ni "rebote" lateral */
-html, body { touch-action: manipulation; overscroll-behavior-x: none; }
+html, body { touch-action: manipulation; overscroll-behavior-x: none; -webkit-tap-highlight-color: transparent; }
+a, button { -webkit-tap-highlight-color: rgba(238, 118, 35, .15); }
 input[type="date"] { -webkit-appearance: none; appearance: none; min-height: 2.375rem; }
 input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 .input { @apply w-full min-w-0 rounded-md border border-stone-300 bg-white px-3 py-2 text-base sm:text-sm outline-none focus:border-naranja focus:ring-2 focus:ring-naranja/20 disabled:bg-stone-50; }
 .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500; }
-.btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition disabled:opacity-50; }
+.btn { @apply inline-flex select-none items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition active:scale-[0.97] disabled:cursor-wait disabled:opacity-60; }
 .btn-primario { @apply btn bg-naranja text-white hover:bg-naranja-oscuro; }
 .btn-secundario { @apply btn border border-stone-300 bg-white hover:bg-stone-50; }
 .btn-whatsapp { @apply btn bg-[#25D366] text-white hover:bg-[#1DA851]; }

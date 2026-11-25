@@ -4,6 +4,7 @@ import { crearClienteNavegador } from "@/lib/supabase/client";
 import { NOMBRE_UNIDAD, type Producto, type UnidadNegocio } from "@/lib/tipos";
 import { pesos, fechaAR } from "@/lib/calculos";
 import { TarjetaProducto } from "@/components/TarjetaProducto";
+import { Spinner } from "@/components/Spinner";
 
 export default function Precios() {
   const supabase = useMemo(() => crearClienteNavegador(), []);
@@ -13,10 +14,15 @@ export default function Precios() {
   const [q, setQ] = useState("");
   const [pct, setPct] = useState("");
   const [msg, setMsg] = useState("");
+  const [guardandoId, setGuardandoId] = useState<string | null>(null);
+  const [aplicando, setAplicando] = useState(false);
+  const [cargando, setCargando] = useState(true);
 
   async function cargar() {
+    setCargando(true);
     const { data } = await supabase.from("productos").select("*").eq("unidad_negocio", unidad).order("categoria").order("descripcion");
     setProductos((data as Producto[]) ?? []);
+    setCargando(false);
   }
 
   useEffect(() => {
@@ -32,8 +38,10 @@ export default function Precios() {
   const filtrados = productos.filter((p) => `${p.codigo} ${p.descripcion} ${p.categoria}`.toLowerCase().includes(q.toLowerCase()));
 
   async function guardar(p: Producto) {
+    setGuardandoId(p.id);
     const { id, actualizado: _a, ...resto } = p;
     const { error } = await supabase.from("productos").update({ ...resto, actualizado: new Date().toISOString() }).eq("id", id);
+    setGuardandoId(null);
     aviso(error ? "No se pudo guardar (¿sos admin?)" : "Precio guardado ✓");
   }
 
@@ -49,7 +57,9 @@ export default function Precios() {
     const n = parseFloat(pct.replace(",", "."));
     if (!Number.isFinite(n) || n === 0) return;
     if (!confirm(`¿Aplicar ${n > 0 ? "+" : ""}${n}% a todos los precios de ${NOMBRE_UNIDAD[unidad]}?`)) return;
+    setAplicando(true);
     const { data, error } = await supabase.rpc("actualizar_precios", { p_unidad: unidad, p_porcentaje: n, p_categoria: null });
+    setAplicando(false);
     aviso(error ? error.message : `${data} precios actualizados ✓`);
     setPct("");
     cargar();
@@ -88,7 +98,7 @@ export default function Precios() {
               <label className="label">Aumento %</label>
               <input className="input" inputMode="decimal" value={pct} onChange={(e) => setPct(e.target.value)} placeholder="4,5" />
             </div>
-            <button className="btn-secundario" onClick={aumentoMasivo}>Aplicar a todo</button>
+            <button className="btn-secundario" onClick={aumentoMasivo} disabled={aplicando}>{aplicando ? <><Spinner /> Aplicando…</> : "Aplicar a todo"}</button>
           </div>
           <button className="btn-primario w-full sm:w-auto" onClick={agregar}>+ Producto</button>
         </div>
@@ -97,9 +107,10 @@ export default function Precios() {
       {/* Celular: tarjetas */}
       <div className="space-y-2 md:hidden">
         {filtrados.map((p) => (
-          <TarjetaProducto key={p.id} p={p} esAdmin={esAdmin} upd={upd} guardar={guardar} />
+          <TarjetaProducto key={p.id} p={p} esAdmin={esAdmin} upd={upd} guardar={guardar} guardando={guardandoId === p.id} />
         ))}
-        {filtrados.length === 0 && <p className="tarjeta text-center text-sm text-stone-500">Sin productos.</p>}
+        {cargando && <p className="flex items-center justify-center gap-2 p-6 text-sm text-stone-500"><Spinner className="h-4 w-4 text-naranja" /> Cargando precios…</p>}
+        {!cargando && filtrados.length === 0 && <p className="tarjeta text-center text-sm text-stone-500">Sin productos.</p>}
       </div>
 
       {/* Computadora: tabla */}
@@ -123,7 +134,7 @@ export default function Precios() {
                   <td className="py-1"><input className="input w-28 text-right" type="number" step="0.01" value={p.costo} onChange={(e) => upd(p.id, "costo", Number(e.target.value))} /></td>
                   <td className="py-1 text-center"><input type="checkbox" checked={p.acopiable} onChange={(e) => upd(p.id, "acopiable", e.target.checked)} /></td>
                   <td className="py-1 text-xs text-stone-500">{fechaAR(p.actualizado)}</td>
-                  <td className="py-1 pr-2"><button className="btn-secundario px-3 py-1.5" onClick={() => guardar(p)}>Guardar</button></td>
+                  <td className="py-1 pr-2"><button className="btn-secundario min-w-[6.5rem] px-3 py-1.5" onClick={() => guardar(p)} disabled={guardandoId === p.id}>{guardandoId === p.id ? <><Spinner /> …</> : "Guardar"}</button></td>
                 </tr>
               ) : (
                 <tr key={p.id}>

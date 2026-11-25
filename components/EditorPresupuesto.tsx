@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteNavegador } from "@/lib/supabase/client";
+import { Spinner } from "./Spinner";
+import { iniciarCarga } from "./BarraCarga";
 import {
   CARGA_MINIMA_M3, discriminaIva, importe, numeroPresupuesto, pesos, telefonoWhatsApp, totales, volumen, fechaAR, venceEl,
 } from "@/lib/calculos";
@@ -26,6 +28,13 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
   const [obras, setObras] = useState(obrasIni);
   const [estadoGuardado, setEstadoGuardado] = useState<"" | "guardando" | "ok" | "error">("");
   const [sucio, setSucio] = useState(false);
+  const [accion, setAccion] = useState<"" | "pdf" | "whatsapp" | "eliminar" | "duplicar" | "cliente" | "obra">("");
+  /** Ejecuta una acción mostrando el estado de espera en su botón. */
+  async function conEspera(nombre: typeof accion, fn: () => Promise<unknown>) {
+    if (accion) return;
+    setAccion(nombre);
+    try { await fn(); } finally { setAccion(""); }
+  }
 
   const cliente = clientes.find((c) => c.id === p.cliente_id);
   const obrasCliente = obras.filter((o) => o.cliente_id === p.cliente_id);
@@ -102,6 +111,7 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
   async function eliminar() {
     if (!confirm(`¿Eliminar el presupuesto ${numeroPresupuesto(p.numero)}?`)) return;
     await supabase.from("presupuestos").delete().eq("id", p.id);
+    iniciarCarga();
     router.replace("/presupuestos");
     router.refresh();
   }
@@ -114,6 +124,7 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
     if (items.length) {
       await supabase.from("presupuesto_items").insert(items.map(({ id: _i, presupuesto_id: _p, ...i }, idx) => ({ ...i, presupuesto_id: data.id, orden: idx })));
     }
+    iniciarCarga();
     router.push(`/presupuestos/${data.id}`);
   }
 
@@ -129,12 +140,19 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
           {estadoGuardado === "error" && <span className="text-red-600">Error al guardar</span>}
           {!estadoGuardado && sucio && <span className="text-amber-600">Cambios sin guardar</span>}
         </span>
-        <button className="btn-secundario" onClick={verPdf}>Ver / PDF</button>
-        <button className="btn-whatsapp" onClick={enviarWhatsApp} disabled={!cliente?.telefono} title={cliente?.telefono ? "" : "El cliente no tiene teléfono"}>
+        <button className="btn-secundario" onClick={() => conEspera("pdf", verPdf)} disabled={!!accion}>
+          {accion === "pdf" && <Spinner />} Ver / PDF
+        </button>
+        <button className="btn-whatsapp" onClick={() => conEspera("whatsapp", enviarWhatsApp)} disabled={!cliente?.telefono || !!accion} title={cliente?.telefono ? "" : "El cliente no tiene teléfono"}>
+          {accion === "whatsapp" && <Spinner />}
           WhatsApp
         </button>
-        <button className="btn-primario" onClick={() => guardar()}>Guardar</button>
-        <button className="btn-secundario text-red-600 hover:bg-red-50" onClick={eliminar} title="Eliminar presupuesto">🗑</button>
+        <button className="btn-primario min-w-[7rem]" onClick={() => guardar()} disabled={estadoGuardado === "guardando"}>
+          {estadoGuardado === "guardando" ? <><Spinner /> Guardando…</> : "Guardar"}
+        </button>
+        <button className="btn-secundario text-red-600 hover:bg-red-50" onClick={() => conEspera("eliminar", eliminar)} disabled={!!accion} title="Eliminar presupuesto">
+          {accion === "eliminar" ? <Spinner /> : "🗑"}
+        </button>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -149,7 +167,7 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
                   <option value="">— Elegir cliente —</option>
                   {clientes.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
-                <button className="btn-secundario px-3" onClick={crearCliente} title="Nuevo cliente">+</button>
+                <button className="btn-secundario px-3" onClick={() => conEspera("cliente", crearCliente)} disabled={!!accion} title="Nuevo cliente">{accion === "cliente" ? <Spinner /> : "+"}</button>
               </div>
               {cliente && (
                 <p className="mt-1 text-xs text-stone-500">
@@ -165,7 +183,7 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
                   <option value="">— Sin obra —</option>
                   {obrasCliente.map((o) => <option key={o.id} value={o.id}>{o.nombre}{o.direccion ? ` · ${o.direccion}` : ""}</option>)}
                 </select>
-                <button className="btn-secundario px-3" onClick={crearObra} disabled={!p.cliente_id} title="Nueva obra">+</button>
+                <button className="btn-secundario px-3" onClick={() => conEspera("obra", crearObra)} disabled={!p.cliente_id || !!accion} title="Nueva obra">{accion === "obra" ? <Spinner /> : "+"}</button>
               </div>
             </div>
           </div>
@@ -271,8 +289,12 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
           </div>
 
           <div className="flex justify-between text-sm">
-            <button className="text-stone-600 hover:underline" onClick={duplicar}>Duplicar</button>
-            <button className="text-red-600 hover:underline" onClick={eliminar}>Eliminar</button>
+            <button className="inline-flex items-center gap-1 text-stone-600 hover:underline disabled:opacity-50" onClick={() => conEspera("duplicar", duplicar)} disabled={!!accion}>
+              {accion === "duplicar" && <Spinner className="h-3.5 w-3.5" />} {accion === "duplicar" ? "Duplicando…" : "Duplicar"}
+            </button>
+            <button className="inline-flex items-center gap-1 text-red-600 hover:underline disabled:opacity-50" onClick={() => conEspera("eliminar", eliminar)} disabled={!!accion}>
+              {accion === "eliminar" && <Spinner className="h-3.5 w-3.5" />} Eliminar
+            </button>
           </div>
         </div>
       </div>

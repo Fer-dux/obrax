@@ -3,6 +3,8 @@ import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteNavegador } from "@/lib/supabase/client";
+import { Spinner } from "@/components/Spinner";
+import { iniciarCarga } from "@/components/BarraCarga";
 import { NOMBRE_CONDICION, type Cliente, type CondicionFiscal, type Obra, type Presupuesto, type Item } from "@/lib/tipos";
 import { numeroPresupuesto, pesos, totales, fechaAR } from "@/lib/calculos";
 import { EstadoBadge } from "@/components/EstadoBadge";
@@ -17,6 +19,7 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
   const [obras, setObras] = useState<Obra[]>([]);
   const [presupuestos, setPresupuestos] = useState<P[]>([]);
   const [guardado, setGuardado] = useState("");
+  const [ocupado, setOcupado] = useState<"" | "guardar" | "presupuesto" | "obra">("");
 
   useEffect(() => {
     supabase.from("clientes").select("*").eq("id", id).single().then(({ data }) => setC(data as Cliente));
@@ -25,19 +28,23 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
       .then(({ data }) => setPresupuestos((data as P[]) ?? []));
   }, [id, supabase]);
 
-  if (!c) return <p className="text-sm text-stone-500">Cargando…</p>;
+  if (!c) return <p className="flex items-center gap-2 text-sm text-stone-500"><Spinner className="h-4 w-4 text-naranja" /> Cargando…</p>;
 
   const set = (k: keyof Cliente, v: string) => setC({ ...c, [k]: v });
 
   async function guardar() {
+    setOcupado("guardar");
     const { id: _id, creado: _c, ...resto } = c!;
     const { error } = await supabase.from("clientes").update(resto).eq("id", id);
+    setOcupado("");
     setGuardado(error ? "Error al guardar" : "Guardado ✓");
     setTimeout(() => setGuardado(""), 2000);
   }
 
   async function agregarObra() {
+    setOcupado("obra");
     const { data } = await supabase.from("obras").insert({ cliente_id: id, nombre: "Nueva obra" }).select().single();
+    setOcupado("");
     if (data) setObras([...obras, data as Obra]);
   }
 
@@ -58,8 +65,10 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
   }
 
   async function presupuestar(obraId?: string) {
+    setOcupado("presupuesto");
     const { data } = await supabase.from("presupuestos").insert({ cliente_id: id, obra_id: obraId ?? null }).select().single();
-    if (data) router.push(`/presupuestos/${data.id}`);
+    if (data) { iniciarCarga(); router.push(`/presupuestos/${data.id}`); }
+    else setOcupado("");
   }
 
   return (
@@ -68,8 +77,12 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
         <Link href="/clientes" className="text-sm text-stone-500 hover:text-grafito">← Clientes</Link>
         <h1 className="titulo flex-1">{c.nombre}</h1>
         <span className="text-sm text-green-700">{guardado}</span>
-        <button className="btn-secundario" onClick={() => presupuestar()}>Nuevo presupuesto</button>
-        <button className="btn-primario" onClick={guardar}>Guardar</button>
+        <button className="btn-secundario" onClick={() => presupuestar()} disabled={!!ocupado}>
+          {ocupado === "presupuesto" && <Spinner />} Nuevo presupuesto
+        </button>
+        <button className="btn-primario min-w-[7rem]" onClick={guardar} disabled={!!ocupado}>
+          {ocupado === "guardar" ? <><Spinner /> Guardando…</> : "Guardar"}
+        </button>
       </div>
 
       <div className="tarjeta grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -95,7 +108,7 @@ export default function FichaCliente({ params }: { params: Promise<{ id: string 
       <div className="tarjeta">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-semibold">Obras</h2>
-          <button className="btn-secundario px-3 py-1.5" onClick={agregarObra}>+ Obra</button>
+          <button className="btn-secundario px-3 py-1.5" onClick={agregarObra} disabled={!!ocupado}>{ocupado === "obra" ? <Spinner /> : "+ Obra"}</button>
         </div>
         {obras.length === 0 && <p className="text-sm text-stone-500">Sin obras cargadas.</p>}
         <div className="space-y-3">

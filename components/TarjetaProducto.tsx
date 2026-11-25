@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { pesos, fechaAR } from "@/lib/calculos";
 import type { Producto } from "@/lib/tipos";
+import { Spinner } from "./Spinner";
 
-export function TarjetaProducto({ p, esAdmin, upd, guardar }: {
+export function TarjetaProducto({ p, esAdmin, upd, guardar, guardando = false }: {
   p: Producto;
+  guardando?: boolean;
   esAdmin: boolean;
   upd: (id: string, k: keyof Producto, v: string | number | boolean) => void;
   guardar: (p: Producto) => void;
@@ -35,7 +37,9 @@ export function TarjetaProducto({ p, esAdmin, upd, guardar }: {
                 value={p.precio} onChange={(e) => cambiar("precio", Number(e.target.value))} />
             </div>
             <button className="btn-secundario px-3" onClick={() => setEditando(!editando)}>{editando ? "Cerrar" : "Editar"}</button>
-            <button className="btn-primario px-3" disabled={!sucio} onClick={() => { guardar(p); setSucio(false); }}>Guardar</button>
+            <button className="btn-primario min-w-[6.5rem] px-3" disabled={!sucio || guardando} onClick={() => { guardar(p); setSucio(false); }}>
+              {guardando ? <><Spinner /> …</> : "Guardar"}
+            </button>
           </div>
 
           {editando && (

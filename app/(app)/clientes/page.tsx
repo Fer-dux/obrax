@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteNavegador } from "@/lib/supabase/client";
+import { Spinner } from "@/components/Spinner";
+import { iniciarCarga } from "@/components/BarraCarga";
 import { NOMBRE_CONDICION, type Cliente } from "@/lib/tipos";
 
 export default function Clientes() {
@@ -10,6 +12,7 @@ export default function Clientes() {
   const router = useRouter();
   const [lista, setLista] = useState<Cliente[] | null>(null);
   const [q, setQ] = useState("");
+  const [creando, setCreando] = useState(false);
 
   useEffect(() => {
     supabase.from("clientes").select("*").order("nombre").then(({ data }) => setLista((data as Cliente[]) ?? []));
@@ -20,8 +23,10 @@ export default function Clientes() {
   );
 
   async function nuevo() {
+    setCreando(true);
     const { data, error } = await supabase.from("clientes").insert({ nombre: "Nuevo cliente" }).select().single();
-    if (!error && data) router.push(`/clientes/${data.id}`);
+    if (!error && data) { iniciarCarga(); router.push(`/clientes/${data.id}`); }
+    else setCreando(false);
   }
 
   return (
@@ -29,8 +34,11 @@ export default function Clientes() {
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="titulo flex-1">Clientes</h1>
         <input className="input order-last w-full sm:order-none sm:w-auto sm:max-w-xs" placeholder="Buscar nombre, CUIT, teléfono…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <button className="btn-primario" onClick={nuevo}>+ Cliente</button>
+        <button className="btn-primario" onClick={nuevo} disabled={creando}>{creando ? <><Spinner /> Creando…</> : "+ Cliente"}</button>
       </div>
+      {lista === null && (
+        <p className="flex items-center gap-2 text-sm text-stone-500 md:hidden"><Spinner className="h-4 w-4 text-naranja" /> Cargando clientes…</p>
+      )}
       {/* Celular: tarjetas */}
       {lista !== null && (
         <div className="space-y-2 md:hidden">
@@ -48,7 +56,7 @@ export default function Clientes() {
 
       <div className="tarjeta hidden overflow-x-auto p-0 sm:p-0 md:block">
         {lista === null ? (
-          <p className="p-6 text-sm text-stone-500">Cargando…</p>
+          <p className="flex items-center gap-2 p-6 text-sm text-stone-500"><Spinner className="h-4 w-4 text-naranja" /> Cargando…</p>
         ) : filtrados.length === 0 ? (
           <p className="p-6 text-center text-sm text-stone-500">No hay clientes cargados.</p>
         ) : (
