@@ -123,23 +123,23 @@ export default function Precios() {
           <thead className="bg-stone-50 text-left text-xs uppercase text-stone-500">
             <tr>
               <th className="py-2 pl-3 pr-1">Código</th><th className="px-1">Descripción</th><th className="px-1">Categoría</th><th className="px-1">Unidad</th>
-              <th className="px-1 text-right">Precio c/IVA</th>{esAdmin && <th className="px-1 text-right">Costo</th>}<th className="px-1 text-center">Acopio</th><th className="px-2">Actualizado</th>{esAdmin && <th />}
+              <th className="px-1 text-right">Precio c/IVA</th>{esAdmin && <th className="px-1 text-right">Costo</th>}<th className="px-1 text-center">Acopio</th><th className="hidden px-2 xl:table-cell">Actualizado</th>{esAdmin && <th />}
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-100">
             {filtrados.map((p) =>
               esAdmin ? (
                 <tr key={p.id} className={editados.has(p.id) ? "bg-naranja-claro/40" : ""}>
-                  <td className="py-1 pl-3 pr-1"><input className="input w-24 font-mono text-xs" value={p.codigo} onChange={(e) => upd(p.id, "codigo", e.target.value)} /></td>
-                  <td className="w-full px-1 py-1"><input className="input min-w-[18rem]" title={p.descripcion} value={p.descripcion} onChange={(e) => upd(p.id, "descripcion", e.target.value)} /></td>
-                  <td className="px-1 py-1"><input className="input w-28" value={p.categoria} onChange={(e) => upd(p.id, "categoria", e.target.value)} /></td>
-                  <td className="px-1 py-1"><input className="input w-20" value={p.unidad} onChange={(e) => upd(p.id, "unidad", e.target.value)} /></td>
-                  <td className="px-1 py-1"><input className="input w-32 text-right font-semibold" type="number" inputMode="decimal" step="0.01" value={p.precio} onChange={(e) => upd(p.id, "precio", Number(e.target.value))} /></td>
-                  <td className="px-1 py-1"><input className="input w-28 text-right" type="number" inputMode="decimal" step="0.01" value={p.costo} onChange={(e) => upd(p.id, "costo", Number(e.target.value))} /></td>
+                  <td className="py-1 pl-3 pr-1"><input className="input w-[7.5rem] px-2 font-mono text-xs" title={p.codigo} value={p.codigo} onChange={(e) => upd(p.id, "codigo", e.target.value)} /></td>
+                  <td className="w-full px-1 py-1"><input className="input w-full min-w-[11rem]" title={p.descripcion} value={p.descripcion} onChange={(e) => upd(p.id, "descripcion", e.target.value)} /></td>
+                  <td className="px-1 py-1"><input className="input w-24 px-2" value={p.categoria} onChange={(e) => upd(p.id, "categoria", e.target.value)} /></td>
+                  <td className="px-1 py-1"><input className="input w-[4.5rem] px-2" value={p.unidad} onChange={(e) => upd(p.id, "unidad", e.target.value)} /></td>
+                  <td className="px-1 py-1"><input className="input w-28 px-2 text-right font-semibold" type="number" inputMode="decimal" step="0.01" value={p.precio} onChange={(e) => upd(p.id, "precio", Number(e.target.value))} /></td>
+                  <td className="px-1 py-1"><input className="input w-24 px-2 text-right" type="number" inputMode="decimal" step="0.01" value={p.costo} onChange={(e) => upd(p.id, "costo", Number(e.target.value))} /></td>
                   <td className="px-1 py-1 text-center"><input type="checkbox" className="h-4 w-4 accent-naranja" checked={p.acopiable} onChange={(e) => upd(p.id, "acopiable", e.target.checked)} /></td>
-                  <td className="whitespace-nowrap px-2 py-1 text-xs text-stone-500">{fechaAR(p.actualizado)}</td>
+                  <td className="hidden whitespace-nowrap px-2 py-1 text-xs text-stone-500 xl:table-cell">{fechaAR(p.actualizado)}</td>
                   <td className="py-1 pl-1 pr-3">
-                    <button className={`${editados.has(p.id) ? "btn-primario" : "btn-secundario text-stone-400"} min-w-[6.5rem] px-3 py-1.5`}
+                    <button className={`${editados.has(p.id) ? "btn-primario" : "btn-secundario text-stone-400"} px-3 py-1.5`}
                       onClick={() => guardar(p)} disabled={guardandoId === p.id || !editados.has(p.id)}>
                       {guardandoId === p.id ? <><Spinner /> …</> : "Guardar"}
                     </button>
