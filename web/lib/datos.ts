@@ -21,13 +21,24 @@ export const DATOS = {
 };
 
 /** Empresas que respaldan a OBRAX Group (una por unidad de negocio). */
-export const RESPALDO = [
+type Empresa = {
+  nombre: string;
+  rubro: string;
+  unidad: string;
+  texto: string;
+  web: string;
+  /** Opcional: si no hay logo se muestra el nombre. */
+  logo?: { src: string; ancho: number; alto: number };
+};
+
+export const RESPALDO: Empresa[] = [
   {
     nombre: "Hormaco",
     rubro: "Servicio de hormigón elaborado",
     unidad: "Hormigón",
     texto: "Planta, flota de mixers y experiencia técnica en hormigón elaborado detrás de cada entrega de OBRAX.",
     web: "https://hormaco.com.ar",
+    logo: { src: "/logos/hormaco.png", ancho: 429, alto: 89 },
   },
   {
     nombre: "Palermo Materiales",
@@ -35,6 +46,7 @@ export const RESPALDO = [
     unidad: "Materiales",
     texto: "Corralón con amplio surtido y stock: cemento, áridos, ladrillos, impermeabilizantes y más.",
     web: "https://palermomateriales.com.ar",
+    logo: { src: "/logos/palermo-materiales.png", ancho: 199, alto: 61 },
   },
 ];
 

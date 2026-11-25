@@ -98,8 +98,16 @@ export default function Inicio() {
                   <span className="absolute right-0 top-0 rounded-bl-xl bg-grafito px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white group-hover:bg-naranja">
                     {r.unidad}
                   </span>
-                  <div className="text-2xl font-black tracking-tight">{r.nombre}</div>
-                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-naranja">{r.rubro}</div>
+                  <div className="flex h-16 items-center">
+                    {r.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={r.logo.src} alt={r.nombre} width={r.logo.ancho} height={r.logo.alto}
+                        className="h-auto max-h-14 w-auto max-w-[78%] object-contain" />
+                    ) : (
+                      <div className="text-2xl font-black tracking-tight">{r.nombre}</div>
+                    )}
+                  </div>
+                  <div className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-naranja">{r.rubro}</div>
                   <p className="mt-4 text-sm text-stone-600">{r.texto}</p>
                   <span className="mt-4 inline-block text-sm font-semibold text-grafito group-hover:text-naranja">
                     {r.web.replace("https://", "")} →
