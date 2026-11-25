@@ -1,5 +1,7 @@
 # OBRAX · Aplicación comercial
 
+**App:** https://app.obraxgroup.com.ar
+
 Cotizador y gestión comercial de **OBRAX – Soluciones para la construcción**, con dos unidades de negocio
 (**Hormigón elaborado** y **Materiales**) que comparten clientes, vendedores y seguimiento.
 
