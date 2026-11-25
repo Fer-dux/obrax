@@ -63,44 +63,44 @@ export default function Inicio() {
       <main id="contenido">
         {/* ───── Hero ───── */}
         <section id="inicio" className="relative isolate overflow-hidden bg-carbon text-white">
+          {/* Celular y tablet: foto de fondo completa, degradado hacia abajo donde va el texto */}
+          <div className="absolute inset-0 -z-10 lg:hidden">
+            <Image src="/img/obra-principal.webp" alt="" width={934} height={414} priority
+              sizes="(max-width: 1023px) 100vw, 1px" className="h-[300px] w-full object-cover object-[72%_center] sm:h-[440px]" />
+            <div className="absolute inset-x-0 top-0 h-[300px] bg-gradient-to-t from-carbon via-carbon/20 to-transparent sm:h-[440px]" />
+          </div>
           {/* Escritorio: foto a la derecha con degradado hacia el texto */}
           <div className="absolute inset-y-0 right-0 -z-10 hidden w-[68%] lg:block">
             <Image src="/img/obra-principal.webp" alt="" width={934} height={414} priority
-              sizes="68vw" className="h-full w-full object-cover object-[65%_center]" />
+              sizes="(min-width: 1024px) 68vw, 1px" className="h-full w-full object-cover object-[65%_center]" />
             <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-carbon via-carbon/60 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-carbon/50 to-transparent" />
           </div>
-          <div className="contenedor flex flex-col justify-center pb-10 pt-12 sm:pt-16 lg:min-h-[560px] lg:py-20">
+          <div className="contenedor flex flex-col justify-end pb-10 pt-[220px] sm:pt-[360px] lg:min-h-[560px] lg:justify-center lg:py-20">
             <div className="max-w-xl">
               <h1 className="font-titulo text-[2.6rem] font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
                 La fuerza de construir <span className="text-naranja">juntos.</span>
               </h1>
-              <p className="mt-5 max-w-lg text-lg text-stone-200 sm:text-xl">
+              <p className="mt-4 max-w-lg text-[17px] text-stone-200 sm:mt-5 sm:text-xl">
                 Hormigón elaborado, materiales y logística integrada para que tu obra avance, con un solo grupo.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
                 <a href="#contacto" className="btn-naranja px-6 py-3.5 text-base">Solicitá tu presupuesto <Flecha /></a>
-                <a href="#calculadora" className="btn-borde px-6 py-3.5 text-base"><IconoCalculadora /> Calculá tu hormigón</a>
+                <a href="#calculadora" className="btn-borde bg-carbon/30 px-6 py-3.5 text-base backdrop-blur-sm"><IconoCalculadora /> Calculá tu hormigón</a>
               </div>
             </div>
-          </div>
-          {/* Celular y tablet: la foto se apila debajo del texto */}
-          <div className="relative lg:hidden">
-            <Image src="/img/obra-principal.webp" alt="" width={934} height={414} priority
-              sizes="100vw" className="aspect-[934/414] h-auto w-full object-cover" />
-            <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-carbon to-transparent" />
           </div>
         </section>
 
         {/* ───── Beneficios ───── */}
         <section aria-label="Por qué OBRAX Group" className="border-y border-white/5 bg-grafito text-white">
-          <ul className="contenedor grid grid-cols-1 gap-y-5 py-7 sm:grid-cols-2 lg:grid-cols-5 lg:divide-x lg:divide-white/10">
-            {BENEFICIOS.map((b) => (
-              <li key={b.titulo} className="flex items-center gap-4 lg:justify-center lg:px-4">
-                <span className="shrink-0 text-white/90">{b.icono}</span>
-                <span>
-                  <span className="block font-titulo text-[15px] font-bold leading-tight">{b.titulo}</span>
-                  <span className="block text-sm text-acero">{b.texto}</span>
+          <ul className="contenedor grid grid-cols-2 gap-x-3 gap-y-4 py-5 sm:gap-y-5 sm:py-7 lg:grid-cols-5 lg:divide-x lg:divide-white/10">
+            {BENEFICIOS.map((b, i) => (
+              <li key={b.titulo} className={`flex items-center gap-2.5 sm:gap-4 lg:justify-center lg:px-4 ${i === BENEFICIOS.length - 1 ? "col-span-2 justify-center lg:col-span-1" : ""}`}>
+                <span className="shrink-0 text-white/90 [&>svg]:h-7 [&>svg]:w-7 sm:[&>svg]:h-9 sm:[&>svg]:w-9">{b.icono}</span>
+                <span className="min-w-0">
+                  <span className="block hyphens-auto font-titulo text-[13px] font-bold leading-tight sm:text-[15px]" lang="es">{b.titulo}</span>
+                  <span className="block text-xs text-acero sm:text-sm">{b.texto}</span>
                 </span>
               </li>
             ))}
