@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { Logo } from "@/components/Logo";
@@ -27,8 +28,14 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
   return { title: "Presupuesto OBRAX", robots: { index: false } };
 }
 
-export default async function PresupuestoPublico({ params }: { params: Promise<{ token: string }> }) {
+export default async function PresupuestoPublico({ params, searchParams }: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ volver?: string }>;
+}) {
   const { token } = await params;
+  const { volver } = await searchParams;
+  // Solo se acepta volver a un presupuesto de la app (evita redirecciones a otros sitios).
+  const volverA = volver && /^\/presupuestos\/[0-9a-f-]{36}$/i.test(volver) ? volver : null;
   if (!/^[0-9a-f-]{36}$/i.test(token)) notFound();
   const supabase = await crearClienteServidor();
   const { data } = await supabase.rpc("presupuesto_publico", { p_token: token });
@@ -40,7 +47,8 @@ export default async function PresupuestoPublico({ params }: { params: Promise<{
 
   return (
     <div className="min-h-screen bg-stone-200 pb-6 pt-[max(1.5rem,env(safe-area-inset-top))] print:bg-white print:py-0">
-      <div className="no-imprimir mx-auto mb-4 flex max-w-[210mm] justify-end gap-2 px-4">
+      <div className={`no-imprimir mx-auto mb-4 flex max-w-[210mm] gap-2 px-4 ${volverA ? "justify-between" : "justify-end"}`}>
+        {volverA && <Link href={volverA} className="btn-secundario">← Volver al presupuesto</Link>}
         <BotonImprimir />
       </div>
 

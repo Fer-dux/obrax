@@ -105,7 +105,9 @@ export function EditorPresupuesto({ inicial, itemsIniciales, clientes: clientesI
 
   async function verPdf() {
     if (sucio && !(await guardar())) return;
-    window.open(`/p/${p.token}`, "_blank");
+    // Misma pantalla (no pestaña nueva) para poder volver, sobre todo con la app instalada.
+    iniciarCarga();
+    router.push(`/p/${p.token}?volver=${encodeURIComponent(`/presupuestos/${p.id}`)}`);
   }
 
   async function eliminar() {
