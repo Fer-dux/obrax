@@ -50,6 +50,10 @@ export async function crearUsuario(datos: {
     if ((datos.clave ?? "").length < 6) return { ok: false, error: "La contraseña debe tener al menos 6 caracteres." };
     if (!ROLES_VALIDOS.includes(datos.rol)) return { ok: false, error: "Rol inválido." };
 
+    // Autoriza este email para que la base acepte el alta (registro público cerrado).
+    const { error: eAut } = await admin.from("altas_autorizadas").upsert({ email });
+    if (eAut) return { ok: false, error: "No se pudo autorizar el alta: " + eAut.message };
+
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password: datos.clave,
@@ -57,7 +61,10 @@ export async function crearUsuario(datos: {
       user_metadata: { nombre },
       app_metadata: { alta_por_admin: true },
     });
-    if (error || !data.user) return { ok: false, error: traducirError(error?.message ?? "No se pudo crear el usuario.") };
+    if (error || !data.user) {
+      await admin.from("altas_autorizadas").delete().eq("email", email);
+      return { ok: false, error: traducirError(error?.message ?? "No se pudo crear el usuario.") };
+    }
 
     const { error: e2 } = await admin.from("perfiles").update({
       nombre,
