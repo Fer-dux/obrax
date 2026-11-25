@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
+body { @apply bg-white text-grafito antialiased; overflow-x: clip; }
+
+.contenedor { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+.btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-bold uppercase tracking-wide transition; }
+.btn-naranja { @apply btn bg-naranja text-white shadow-lg shadow-naranja/20 hover:bg-naranja-oscuro; }
+.btn-borde { @apply btn border-2 border-white/30 text-white hover:border-white hover:bg-white/5; }
+.btn-oscuro { @apply btn bg-grafito text-white hover:bg-grafito-claro; }
+.eyebrow { @apply text-xs font-bold uppercase tracking-[0.3em] text-naranja; }
+.titulo-seccion { @apply mt-2 text-3xl font-black tracking-tight sm:text-4xl; }
+
+/* Textura de hormigón sutil, sin imágenes */
+.hormigon {
+  background-color: #2a353e;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.05) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.04) 0 1px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.18) 0 1px, transparent 2px),
+    linear-gradient(135deg, #2f3a44 0%, #1f2a33 60%, #18212a 100%);
+  background-size: 7px 7px, 11px 11px, 9px 9px, 100% 100%;
+}
+input, select { min-width: 0; }
